@@ -1,2 +1,2 @@
-public record Instruction(String instruction, Integer operand) {
+public record Instruction(OpCode opcode, Integer operand) {
 }

@@ -1,0 +1,24 @@
+INPUT        ; Get A
+STORE a
+INPUT        ; Get B
+STORE b
+
+LOAD a
+LOAD b
+LT           ; Is a < b?
+JIT :B_GREATER
+
+:A_GREATER
+LOAD a
+LOAD b
+SUB
+JUMP :PRINT_RESULT
+
+:B_GREATER
+LOAD b
+LOAD a
+SUB
+
+:PRINT_RESULT
+PRINT        ; Outputs the positive difference
+HALT
