@@ -1,19 +1,38 @@
-PUSH 5
-CALL :FACTORIAL
-PRINT           ; Final Output should be 120
-HALT
+; --- Power of Two & Bitwise Stress Test ---
+PUSH 1          ; Initial Value
+PUSH 0          ; Initial Counter (2^0)
+STORE 0         ; We'll use memory index 0 to track the exponent
 
-:FACTORIAL
-DUP             ; Stack: [n, n]
-PUSH 1          ; Stack: [n, n, 1]
-GT              ; Stack: [n, (n > 1)]
-JIT :CONTINUE   ; If n > 1, jump to :CONTINUE
-RET             ; Else (Base Case), return the 1 on the stack
+:power_loop
+    DUP         ; Copy current value
+    PRINT       ; Output the power of 2
 
-:CONTINUE
-DUP             ; Stack: [n, n]
-PUSH 1          ; Stack: [n, n, 1]
-SUB             ; Stack: [n, n-1]
-CALL :FACTORIAL ; Recursive Call!
-MULT            ; Stack: [n * Factorial(n-1)]
-RET
+    ; Increment Exponent Counter
+    LOAD 0
+    PUSH 1
+    ADD
+    DUP
+    STORE 0     ; Update memory
+
+    ; Logic: Continue if Exponent < 11 (calculate up to 2^10)
+    PUSH 11
+    LT
+    JIF :bit_test ; If NOT < 11, jump to bit test
+
+    ; Shift left to get next power of 2
+    PUSH 1
+    LSHIFT
+    JUMP :power_loop
+
+:bit_test
+    POP         ; Clean up the last value from the loop
+    PUSH 1024   ; Result of 2^10
+    PUSH 1024
+    AND         ; Bitwise AND (1024 & 1024 should be 1/True in your LogicHandler)
+    JIT :success
+    HALT
+
+:success
+    PUSH 33     ; '!'
+    PRINT_CHAR
+    HALT
