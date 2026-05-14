@@ -21,7 +21,9 @@ public enum OpCode {
     AND(19),
     OR(20),
     XOR(21),
-    NOT(22);
+    NOT(22),
+    CALL(23),
+    RET(24);
 
     private int value;
     OpCode(int value) {

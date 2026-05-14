@@ -6,9 +6,11 @@ import java.util.*;
 class VirtualMachine {
     private int programCounter;
     private Stack<Integer> programStack;
+    private Stack<Integer> functionReturnStack;
     private ArrayList<String> programStorage;
     private ArrayList<Instruction> executableInstructions;
     private Map<String, Integer> labels;
+    private TreeMap<Integer, String> addressToLabel;
     private Map<String, Integer> globalVariables;
     private ArrayList<String> constantPool;
     private final Map<String, OpCode> opCodeMapper;
@@ -17,9 +19,11 @@ class VirtualMachine {
     public VirtualMachine() {
         this.programCounter = 0;
         this.programStack = new Stack<>();
+        this.functionReturnStack = new Stack<>();
         this.programStorage = new ArrayList<>();
         this.executableInstructions = new ArrayList<>();
         this.labels = new HashMap<>();
+        this.addressToLabel = new TreeMap<>();
         this.globalVariables = new HashMap<>();
         this.constantPool = new ArrayList<>();
         this.opCodeMapper = new HashMap<>();
@@ -52,6 +56,8 @@ class VirtualMachine {
         opCodeMapper.put("OR", OpCode.OR);
         opCodeMapper.put("XOR", OpCode.XOR);
         opCodeMapper.put("NOT", OpCode.NOT);
+        opCodeMapper.put("CALL", OpCode.CALL);
+        opCodeMapper.put("RET", OpCode.RET);
         opCodeMapper.put("HALT",  OpCode.HALT);
     }
 
@@ -96,6 +102,7 @@ class VirtualMachine {
             String line = programStorage.get(i).trim();
             if (line.startsWith(":")) {
                 labels.put(line.substring(1).toUpperCase(), instructionCounter);
+                addressToLabel.put(instructionCounter, line.substring(1).toUpperCase());
             }else{
                 instructionCounter++;
             }
@@ -112,20 +119,29 @@ class VirtualMachine {
     }
 
     public void executeProgram() {
-        while (isRunning) {
-            Instruction instruction = fetchInstruction();
-            if (instruction == null) {
-                isRunning = false;
-                break;
-            }
 
-            boolean error = executeOneStep(instruction);
-            if (error) {
-                break;
-            }
+        try {
+            while (programCounter < executableInstructions.size() && isRunning) {
+                Instruction instruction = fetchInstruction();
+                // The Null Safety Check
+                if (instruction == null) {
+                    throw new VirtualMachineException("Null Instruction at address " + programCounter + ". Is there a gap in your code?");
+                }
 
-            programCounter++;
+                executeOneStep(instruction);
+                programCounter++;
+            }
+        } catch (VirtualMachineException e) {
+            System.err.println("\n[VM EXECUTION ERROR]: " + e.getMessage());
+            System.err.println("Occurred at PC: " + programCounter);
+
+            printFunctionStackTrace();
+        }catch (Exception e) {
+            System.err.println("[INTERNAL EXECUTION ERROR]: " + e.getMessage());
+        } finally {
+            isRunning = false;
         }
+
     }
 
     private Instruction fetchInstruction() {
@@ -143,7 +159,7 @@ class VirtualMachine {
 
         OpCode opcode = opCodeMapper.get(command);
         if (opcode == null) {
-            throw new IllegalArgumentException("Unknown command: " + command);
+            throw new VirtualMachineException("Unknown command: " + command);
         }
 
         // SAFETY CHECK: Only try to get operand if the array has more than 1 part
@@ -156,160 +172,141 @@ class VirtualMachine {
 
         // PUSH Logic
         if (opcode.equals(OpCode.PUSH)) {
-            if (operandStr == null) throw new IllegalArgumentException("PUSH requires a number");
+            if (operandStr == null) throw new VirtualMachineException("PUSH requires a number");
             return new Instruction(opcode, Integer.parseInt(operandStr));
         }
 
         // LOAD/STORE Logic
         if (opcode.equals(OpCode.LOAD) || opcode.equals(OpCode.STORE)) {
-            if (operandStr == null) throw new IllegalArgumentException(command + " requires a variable name");
+            if (operandStr == null) throw new VirtualMachineException(command + " requires a variable name");
             if (!constantPool.contains(operandStr)) {
                 constantPool.add(operandStr);
             }
             return new Instruction(opcode, constantPool.indexOf(operandStr));
         }
 
-        // JUMP Logic (Fixing the Uppercase Label bug)
-        if (opcode.equals(OpCode.JUMP) || opcode.equals(OpCode.JIT) || opcode.equals(OpCode.JIF)) {
-            if (operandStr == null) throw new IllegalArgumentException(command + " requires a label");
+        // JUMP Logic
+        if (
+                opcode.equals(OpCode.JUMP) || opcode.equals(OpCode.JIT) ||
+                opcode.equals(OpCode.JIF) || opcode.equals(OpCode.CALL)
+        ) {
+            if (operandStr == null) throw new VirtualMachineException(command + " requires a label");
 
             // Use toUpperCase() to match how Pass 1 stores them
             String searchLabel = operandStr.toUpperCase();
             if (labels.containsKey(searchLabel)) {
                 return new Instruction(opcode, labels.get(searchLabel));
             }
-            throw new IllegalArgumentException("Error: label '" + searchLabel + "' does not exist");
+            throw new VirtualMachineException("Error: label '" + searchLabel + "' does not exist");
         }
 
         // Default for HALT, ADD, etc. (No operand needed)
         return new Instruction(opcode, 0);
     }
 
-    private boolean executeOneStep(Instruction instruction) {
+    private void executeOneStep(Instruction instruction) {
         switch (instruction.opcode()) {
-            case PUSH -> { return handlePush(instruction); }
-            case ADD -> { return handleAdd(); }
-            case SUB -> { return handleSub(); }
-            case MULT -> { return handleMult(); }
-            case DIV -> { return handleDiv(); }
-            case MOD -> { return handleMod(); }
-            case GT -> { return handleComparison("GT"); }
-            case LT -> { return handleComparison("LT"); }
-            case EQ -> { return handleComparison("EQ"); }
-            case JUMP -> { return handleJump(instruction, "JUMP"); }
-            case JIT -> { return handleJump(instruction, "JIT"); }
-            case JIF -> { return handleJump(instruction, "JIF"); }
-            case STORE -> { return handleStore(instruction); }
-            case LOAD -> { return handleLoad(instruction); }
-            case PRINT -> {return handlePrint(); }
-            case INPUT -> { return handleInput(); }
-            case POP -> { return handlePop(); }
-            case DUP -> { return handleDup(); }
-            case AND -> { return handleAnd(); }
-            case OR -> { return handleOr(); }
-            case XOR -> { return handleXor(); }
-            case NOT -> { return handleNot(); }
-            case HALT -> { return handleHalt(); }
-            default -> {
-                System.out.println("Unknown instruction!");
-                return true;
-            }
+            case PUSH -> handlePush(instruction);
+            case ADD -> handleAdd();
+            case SUB -> handleSub();
+            case MULT -> handleMult();
+            case DIV -> handleDiv();
+            case MOD -> handleMod();
+            case GT -> handleComparison("GT");
+            case LT -> handleComparison("LT");
+            case EQ -> handleComparison("EQ");
+            case JUMP -> handleJump(instruction, "JUMP");
+            case JIT -> handleJump(instruction, "JIT");
+            case JIF -> handleJump(instruction, "JIF");
+            case CALL -> handleCall(instruction);
+            case RET -> handleRet();
+            case STORE -> handleStore(instruction);
+            case LOAD -> handleLoad(instruction);
+            case PRINT -> handlePrint();
+            case INPUT -> handleInput();
+            case POP -> handlePop();
+            case DUP -> handleDup();
+            case AND -> handleAnd();
+            case OR -> handleOr();
+            case XOR -> handleXor();
+            case NOT -> handleNot();
+            case HALT -> handleHalt();
+            default -> System.out.println("Unknown instruction!");
         }
     }
 
-    private boolean handlePush(Instruction instruction) {
+    private void handlePush(Instruction instruction) {
         if (instruction.operand() == null) {
-            System.out.println("Error: PUSH command requires an operand!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: PUSH command requires an operand!");
         }
         programStack.push(instruction.operand());
-        return false;
     }
 
-    private boolean handleAdd() {
+    private void handleAdd() {
         if (programStack.size() < 2) {
-            System.out.println("Error: ADD command requires at least two operands!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: ADD command requires at least two operands!");
         }
         int value1 = programStack.pop();
         int value2 = programStack.pop();
         int sum = value1 + value2;
         programStack.push(sum);
-        return false;
     }
 
-    private boolean handleSub() {
+    private void handleSub() {
         if (programStack.size() < 2) {
-            System.out.println("Error: SUB command requires at least two operands!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: SUB command requires at least two operands!");
         }
         int value1 = programStack.pop();
         int value2 = programStack.pop();
         int sum = value2 - value1;
         programStack.push(sum);
-        return false;
     }
 
-    private boolean handleMult() {
+    private void handleMult() {
         if (programStack.size() < 2) {
-            System.out.println("Error: MULT command requires at least two operands!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: MULT command requires at least two operands!");
+
         }
         int value1 = programStack.pop();
         int value2 = programStack.pop();
         int sum = value1 * value2;
         programStack.push(sum);
-        return false;
     }
 
-    private boolean handleDiv() {
+    private void handleDiv() {
         if (programStack.size() < 2) {
-            System.out.println("Error: DIV command requires at least two operands!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: DIV command requires at least two operands!");
+
         }
         int value1 = programStack.pop();
         int value2 = programStack.pop();
 
         if (value1 == 0) {
-            System.out.println("Error: Division by zero!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: Division by zero!");
+
         }
 
         int sum = value2 / value1;
         programStack.push(sum);
-        return false;
     }
 
-    private boolean handleMod() {
+    private void handleMod() {
         if (programStack.size() < 2) {
-            System.out.println("Error: MOD command requires at least two operands!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: MOD command requires at least two operands!");
         }
 
         int right = programStack.pop();
         int left = programStack.pop();
         if (right == 0) {
-            System.out.println("Error: Division by zero!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: Division by zero!");
         }
         int sum = left % right;
         programStack.push(sum);
-        return false;
     }
 
-    private boolean handleComparison(String compOperator) {
+    private void handleComparison(String compOperator) {
         if (programStack.size() < 2) {
-            System.out.println("Error: Comparison command requires at least two operands!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: Comparison command requires at least two operands!");
         }
         int value1 = programStack.pop();
         int value2 = programStack.pop();
@@ -324,14 +321,11 @@ class VirtualMachine {
 
         int resultInt = result ? 1 : 0;
         programStack.push(resultInt);
-        return false;
     }
 
-    private boolean handleJump(Instruction instruction, String jumpType) {
+    private void handleJump(Instruction instruction, String jumpType) {
         if (instruction.operand() >= programStorage.size()) {
-            System.out.println("Error: Jumping into the void");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: Jumping into the void");
         }
 
         switch (jumpType) {
@@ -340,16 +334,12 @@ class VirtualMachine {
             }
             case "JIT" -> {
                 if (programStack.isEmpty()) {
-                    System.out.println("Error: Jumping into nothing");
-                    isRunning = false;
-                    return true;
+                    throw new VirtualMachineException("Error: Jumping into nothing");
                 }
 
                 int trueOrFalse = programStack.pop();
                 if (trueOrFalse != 0 && trueOrFalse != 1) {
-                    System.out.println("Error: Invalid boolean");
-                    isRunning = false;
-                    return true;
+                    throw new VirtualMachineException("Error: Invalid boolean");
                 }
                 if (trueOrFalse == 1) {
                     programCounter = instruction.operand() - 1;
@@ -357,74 +347,72 @@ class VirtualMachine {
             }
             case "JIF" -> {
                 if (programStack.isEmpty()) {
-                    System.out.println("Error: Jumping into nothing");
-                    isRunning = false;
-                    return true;
+                    throw new VirtualMachineException("Error: Jumping into nothing");
                 }
 
                 int trueOrFalse = programStack.pop();
                 if (trueOrFalse != 0 && trueOrFalse != 1) {
-                    System.out.println("Error: Invalid boolean");
-                    isRunning = false;
-                    return true;
+                    throw new VirtualMachineException("Error: Invalid boolean");
                 }
                 if (trueOrFalse == 0) {
                     programCounter = instruction.operand() - 1;
                 }
             }
         }
-        return false;
     }
 
-    private boolean handleStore(Instruction instruction) {
+    private void handleCall(Instruction instruction) {
+        if (instruction.operand() >= programStorage.size()) {
+            throw new VirtualMachineException("Error: Calling into nothing");
+        }
+
+        functionReturnStack.push(programCounter + 1);
+        programCounter = instruction.operand() - 1;
+    }
+
+    private void handleRet() {
+        if (functionReturnStack.isEmpty()) {
+            throw new VirtualMachineException("Error: Returning nothing");
+        }
+        programCounter = functionReturnStack.pop() - 1;
+    }
+
+    private void handleStore(Instruction instruction) {
         if (instruction.operand() >= constantPool.size()) {
-            System.out.println("Error: Store command requires variables!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: Store command requires variables!");
         }
 
         String variableName = constantPool.get(instruction.operand());
         if (programStack.isEmpty()) {
-            System.out.println("Error: Store command requires data!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: Store command requires data!");
         }
         int value = programStack.pop();
         globalVariables.put(variableName, value);
-        return false;
     }
 
-    private boolean handleLoad(Instruction instruction) {
+    private void handleLoad(Instruction instruction) {
         if (instruction.operand() >= constantPool.size()) {
-            System.out.println("Error: Load command overflow!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: Load command overflow!");
         }
 
         String variableName = constantPool.get(instruction.operand());
         if (!globalVariables.containsKey(variableName)) {
-            System.out.println("Error: Variable not found!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: Variable not found!");
         }
         int value = globalVariables.get(variableName);
         programStack.push(value);
-        return false;
     }
 
-    private boolean handlePrint() {
+    private void handlePrint() {
         if (programStack.isEmpty()) {
-            System.out.println("Error: No data to print!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: No data to print!");
         }
 
         int value = programStack.pop();
         System.out.println("VM OUTPUT: " + value);
-        return false;
     }
 
-    private boolean handleInput() {
+    private void handleInput() {
         Scanner sc = new Scanner(System.in);
         System.out.print("> INPUT REQUIRED (Integer): ");
 
@@ -436,96 +424,91 @@ class VirtualMachine {
         }
         int value = sc.nextInt();
         programStack.push(value);
-        return false;
     }
 
-    private boolean handlePop() {
+    private void handlePop() {
         if (programStack.isEmpty()) {
-            System.out.println("Error: No data to pop!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: No data to pop!");
         }
 
         programStack.pop();
-        return false;
     }
 
-    private boolean handleDup() {
+    private void handleDup() {
         if (programStack.isEmpty()) {
-            System.out.println("Error: No data to duplicate!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: No data to duplicate!");
+
         }
         int value = programStack.peek();
         programStack.push(value);
-        return false;
     }
 
-    private boolean handleAnd() {
+    private void handleAnd() {
         if (programStack.size() < 2) {
-            System.out.println("Error: No data to compare!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: No data to compare!");
         }
 
         int right = programStack.pop();
         int left = programStack.pop();
         int finalValue = (right != 0 && left !=0) ? 1 : 0;
         programStack.push(finalValue);
-        return false;
     }
 
-    private boolean handleOr() {
+    private void handleOr() {
         if (programStack.size() < 2) {
-            System.out.println("Error: No data to compare!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: No data to compare!");
         }
 
         int right = programStack.pop();
         int left = programStack.pop();
         int finalValue = (right != 0 || left !=0) ? 1 : 0;
         programStack.push(finalValue);
-        return false;
     }
 
-    private boolean handleXor() {
+    private void handleXor() {
         if (programStack.size() < 2) {
-            System.out.println("Error: No data to compare!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: No data to compare!");
         }
 
         int right = programStack.pop();
         int left = programStack.pop();
         int finalValue = ((right != 0 && left == 0) || (right == 0 && left != 0)) ? 1 : 0;
         programStack.push(finalValue);
-        return false;
     }
 
-    private boolean handleNot() {
+    private void handleNot() {
         if (programStack.isEmpty()) {
-            System.out.println("Error: No data to compare!");
-            isRunning = false;
-            return true;
+            throw new VirtualMachineException("Error: No data to compare!");
         }
 
         int right = programStack.pop();
         int finalValue = (right == 0) ? 1 : 0;
         programStack.push(finalValue);
-        return false;
     }
 
-    private boolean handleHalt() {
+    private void handleHalt() {
         isRunning = false;
         programCounter = 0;
-        return true;
     }
 
     public void returnStackData() {
         while (!programStack.isEmpty()) {
             Integer operand = programStack.pop();
             System.out.println(operand);
+        }
+    }
+
+    public String getFunctionName(int programCounter) {
+        Map.Entry<Integer, String> entry = addressToLabel.floorEntry(programCounter);
+        return (entry != null) ? entry.getValue() : "MAIN";
+    }
+
+    public void printFunctionStackTrace() {
+        System.err.println("Stack trace (Most recent call first):");
+        Stack<Integer> stack = (Stack<Integer>) functionReturnStack.clone();
+        while (!stack.isEmpty()) {
+            Integer operand = stack.pop();
+            System.err.println("    at address " + operand + " (inside " + getFunctionName(programCounter) + ")");
         }
     }
 }

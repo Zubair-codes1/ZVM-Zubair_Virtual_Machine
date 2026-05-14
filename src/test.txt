@@ -1,24 +1,19 @@
-INPUT        ; Get A
-STORE a
-INPUT        ; Get B
-STORE b
-
-LOAD a
-LOAD b
-LT           ; Is a < b?
-JIT :B_GREATER
-
-:A_GREATER
-LOAD a
-LOAD b
-SUB
-JUMP :PRINT_RESULT
-
-:B_GREATER
-LOAD b
-LOAD a
-SUB
-
-:PRINT_RESULT
-PRINT        ; Outputs the positive difference
+PUSH 5
+CALL :FACTORIAL
+PRINT           ; Final Output should be 120
 HALT
+
+:FACTORIAL
+DUP             ; Stack: [n, n]
+PUSH 1          ; Stack: [n, n, 1]
+GT              ; Stack: [n, (n > 1)]
+JIT :CONTINUE   ; If n > 1, jump to :CONTINUE
+RET             ; Else (Base Case), return the 1 on the stack
+
+:CONTINUE
+DUP             ; Stack: [n, n]
+PUSH 1          ; Stack: [n, n, 1]
+SUB             ; Stack: [n, n-1]
+CALL :FACTORIAL ; Recursive Call!
+MULT            ; Stack: [n * Factorial(n-1)]
+RET
