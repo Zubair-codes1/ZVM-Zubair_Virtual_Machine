@@ -51,14 +51,18 @@ public class BranchingHandler implements InstructionHandler {
             throw new VirtualMachineException("Error: Jumping into the void");
         }
 
-        virtualMachine.getFunctionStack().push(virtualMachine.getProgramCounter() + 1);
+        Frame frame = new Frame(virtualMachine.getProgramCounter() + 1);
+
+        virtualMachine.getCallStack().push(frame);
         virtualMachine.setProgramCounter(instruction.operand() - 1);
     }
 
     private void handleRet(VirtualMachine virtualMachine) throws VirtualMachineException {
-        if (virtualMachine.getFunctionStack().isEmpty()) {
+        if (virtualMachine.getCallStack().isEmpty()) {
             throw new VirtualMachineException("Error: Returning nothing");
         }
-        virtualMachine.setProgramCounter(virtualMachine.getFunctionStack().pop() - 1);
+
+        Frame currentFrame = virtualMachine.getCallStack().pop();
+        virtualMachine.setProgramCounter(currentFrame.getReturnAddress() - 1);
     }
 }

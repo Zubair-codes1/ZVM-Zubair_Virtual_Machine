@@ -4,5 +4,6 @@ public class Main {
         virtualMachine.loadFromFile("src/test.txt");
         virtualMachine.executeProgram();
         virtualMachine.returnStackData();
+        virtualMachine.printGlobalVariables();
     }
 }

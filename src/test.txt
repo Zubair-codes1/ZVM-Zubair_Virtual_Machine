@@ -1,38 +1,14 @@
-; --- Power of Two & Bitwise Stress Test ---
-PUSH 1          ; Initial Value
-PUSH 0          ; Initial Counter (2^0)
-STORE 0         ; We'll use memory index 0 to track the exponent
+PUSH 100
+STORE hello      ; Global variable "secret" = 100
+CALL :testlogic
+LOAD hello      ; Should still be 100
+PRINT               ; Expected Output: 100
+HALT
 
-:power_loop
-    DUP         ; Copy current value
-    PRINT       ; Output the power of 2
-
-    ; Increment Exponent Counter
-    LOAD 0
-    PUSH 1
-    ADD
-    DUP
-    STORE 0     ; Update memory
-
-    ; Logic: Continue if Exponent < 11 (calculate up to 2^10)
-    PUSH 11
-    LT
-    JIF :bit_test ; If NOT < 11, jump to bit test
-
-    ; Shift left to get next power of 2
-    PUSH 1
-    LSHIFT
-    JUMP :power_loop
-
-:bit_test
-    POP         ; Clean up the last value from the loop
-    PUSH 1024   ; Result of 2^10
-    PUSH 1024
-    AND         ; Bitwise AND (1024 & 1024 should be 1/True in your LogicHandler)
-    JIT :success
-    HALT
-
-:success
-    PUSH 33     ; '!'
-    PRINT_CHAR
-    HALT
+:testlogic
+    PUSH 10
+    STORE_LOCAL 0   ; Local index 0 = 10
+    INC_LOCAL 0    ; Local index 0 = 11
+    LOAD_LOCAL 0    ; Push 11 to stack
+    PRINT           ; Expected Output: 11
+    RET

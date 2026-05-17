@@ -6,7 +6,7 @@ import java.util.*;
 public class VirtualMachine {
     private int programCounter;
     private Stack<Integer> programStack;
-    private Stack<Integer> functionReturnStack;
+    private Stack<Frame> callStack;
     private ArrayList<String> programStorage;
     private ArrayList<Instruction> executableInstructions;
     private Map<String, Integer> labels;
@@ -19,7 +19,7 @@ public class VirtualMachine {
     public VirtualMachine() {
         this.programCounter = 0;
         this.programStack = new Stack<>();
-        this.functionReturnStack = new Stack<>();
+        this.callStack = new Stack<>();
         this.programStorage = new ArrayList<>();
         this.executableInstructions = new ArrayList<>();
         this.labels = new HashMap<>();
@@ -34,37 +34,58 @@ public class VirtualMachine {
     }
 
     private void setOpCodeMapper() {
+        // System and Control
+        opCodeMapper.put("HALT", OpCode.HALT);
+        opCodeMapper.put("NOOP", OpCode.NOOP);
+        opCodeMapper.put("DUMP_STACK", OpCode.DUMP_STACK);
+
+        // stack manipulation
         opCodeMapper.put("PUSH", OpCode.PUSH);
+        opCodeMapper.put("POP", OpCode.POP);
+        opCodeMapper.put("DUP", OpCode.DUP);
+        opCodeMapper.put("SWAP", OpCode.SWAP);
+        opCodeMapper.put("OVER", OpCode.OVER);
+
+        // Arithmetic operations
         opCodeMapper.put("ADD", OpCode.ADD);
         opCodeMapper.put("SUB", OpCode.SUB);
         opCodeMapper.put("MULT", OpCode.MULT);
         opCodeMapper.put("DIV", OpCode.DIV);
         opCodeMapper.put("MOD", OpCode.MOD);
-        opCodeMapper.put("LSHIFT", OpCode.LSHIFT);
-        opCodeMapper.put("RSHIFT", OpCode.RSHIFT);
-        opCodeMapper.put("GT", OpCode.GT);
-        opCodeMapper.put("GTE", OpCode.GTE);
-        opCodeMapper.put("LTE", OpCode.LTE);
-        opCodeMapper.put("LT", OpCode.LT);
+        opCodeMapper.put("LSHFT", OpCode.LSHIFT);
+        opCodeMapper.put("RSHFT", OpCode.RSHIFT);
+        opCodeMapper.put("INC_LOCAL", OpCode.INC_LOCAL);
+        opCodeMapper.put("DEC_LOCAL", OpCode.DEC_LOCAL);
+
+        // Logic and comparison
         opCodeMapper.put("EQ", OpCode.EQ);
         opCodeMapper.put("NEQ", OpCode.NEQ);
-        opCodeMapper.put("JUMP", OpCode.JUMP);
-        opCodeMapper.put("JIT", OpCode.JIT);
-        opCodeMapper.put("JIF", OpCode.JIF);
-        opCodeMapper.put("STORE", OpCode.STORE);
-        opCodeMapper.put("LOAD", OpCode.LOAD);
-        opCodeMapper.put("PRINT", OpCode.PRINT);
-        opCodeMapper.put("PRINT_CHAR", OpCode.PRINT_CHAR);
-        opCodeMapper.put("INPUT", OpCode.INPUT);
-        opCodeMapper.put("POP", OpCode.POP);
-        opCodeMapper.put("DUP", OpCode.DUP);
+        opCodeMapper.put("GT", OpCode.GT);
+        opCodeMapper.put("LT", OpCode.LT);
+        opCodeMapper.put("GTE", OpCode.GTE);
+        opCodeMapper.put("LTE", OpCode.LTE);
         opCodeMapper.put("AND", OpCode.AND);
         opCodeMapper.put("OR", OpCode.OR);
         opCodeMapper.put("XOR", OpCode.XOR);
         opCodeMapper.put("NOT", OpCode.NOT);
+
+        // Branching and Subroutines
+        opCodeMapper.put("JUMP", OpCode.JUMP);
+        opCodeMapper.put("JIT", OpCode.JIT);
+        opCodeMapper.put("JIF", OpCode.JIF);
         opCodeMapper.put("CALL", OpCode.CALL);
         opCodeMapper.put("RET", OpCode.RET);
-        opCodeMapper.put("HALT",  OpCode.HALT);
+
+        // Memory
+        opCodeMapper.put("LOAD", OpCode.LOAD);
+        opCodeMapper.put("STORE", OpCode.STORE);
+        opCodeMapper.put("STORE_LOCAL", OpCode.STORE_LOCAL);
+        opCodeMapper.put("LOAD_LOCAL", OpCode.LOAD_LOCAL);
+
+        // I/O
+        opCodeMapper.put("PRINT", OpCode.PRINT);
+        opCodeMapper.put("PRINT_CHAR", OpCode.PRINT_CHAR);
+        opCodeMapper.put("INPUT", OpCode.INPUT);
     }
 
     public void loadFromFile(String filePath) {
@@ -132,6 +153,10 @@ public class VirtualMachine {
                     throw new VirtualMachineException("Null Instruction at address " + programCounter + ". Is there a gap in your code?");
                 }
 
+                if (instruction.opcode().getScope().equals(ScopeCategory.LOCAL) && callStack.isEmpty()) {
+                    throw new VirtualMachineException("No Frame to be accessed!");
+                }
+
                 executeOneStep(instruction);
                 programCounter++;
             }
@@ -139,7 +164,7 @@ public class VirtualMachine {
             System.err.println("\n[VM EXECUTION ERROR]: " + e.getMessage());
             printFunctionStackTrace();
         }catch (Exception e) {
-            System.err.println("[INTERNAL EXECUTION ERROR]: " + e.getMessage());
+            System.err.println("[INTERNAL EXECUTION ERROR]: " + e.getMessage() + " at address " + programCounter + ".");
         } finally {
             isRunning = false;
         }
@@ -179,12 +204,26 @@ public class VirtualMachine {
         }
 
         // LOAD/STORE Logic
-        if (opcode.equals(OpCode.LOAD) || opcode.equals(OpCode.STORE)) {
+        if (
+                opcode.equals(OpCode.LOAD) || opcode.equals(OpCode.STORE)
+        ) {
             if (operandStr == null) throw new VirtualMachineException(command + " requires a variable name");
             if (!constantPool.contains(operandStr)) {
                 constantPool.add(operandStr);
             }
             return new Instruction(opcode, constantPool.indexOf(operandStr), lineNumber);
+        }
+
+        // LOAD/STORE LOCAL logic
+        if (opcode.equals(OpCode.LOAD_LOCAL) || opcode.equals(OpCode.STORE_LOCAL)) {
+            if  (operandStr == null) throw new VirtualMachineException(command + " requires a variable name");
+            return new Instruction(opcode, Integer.parseInt(operandStr), lineNumber);
+        }
+
+        // INC/DEC LOCAL logic
+        if (opcode.equals(OpCode.INC_LOCAL) || opcode.equals(OpCode.DEC_LOCAL)) {
+            if (operandStr == null) throw new VirtualMachineException(command + " requires a slot index");
+            return new Instruction(opcode, Integer.parseInt(operandStr), lineNumber);
         }
 
         // JUMP Logic
@@ -241,9 +280,10 @@ public class VirtualMachine {
                 " (inside :" + getFunctionName(programCounter) + ")");
 
         // 2. Walk back through the return stack
-        for (int i = functionReturnStack.size() - 1; i >= 0; i--) {
-            int returnAddr = functionReturnStack.get(i);
-            int callAddr = returnAddr - 1; // The address of the CALL instruction
+        for (int i = callStack.size() - 1; i >= 0; i--) {
+            Frame frame = callStack.get(i);
+            int returnAddress = frame.getReturnAddress();
+            int callAddr = returnAddress - 1; // The address of the CALL instruction
 
             Instruction callInstr = executableInstructions.get(callAddr);
             System.err.println("  at line " + callInstr.lineNumber() +
@@ -275,9 +315,6 @@ public class VirtualMachine {
         return programStorage;
     }
 
-    public Stack<Integer> getFunctionStack() {
-        return functionReturnStack;
-    }
 
     public ArrayList<String> getConstantPool() {
         return constantPool;
@@ -285,5 +322,20 @@ public class VirtualMachine {
 
     public Map<String, Integer> getGlobalVariables() {
         return globalVariables;
+    }
+
+    public Frame getActiveFrame() {
+        if (callStack.isEmpty()) throw new VirtualMachineException("Error: callStack is empty");
+        return callStack.peek();
+    }
+
+    public Stack<Frame> getCallStack() {
+        return callStack;
+    }
+
+    public void printGlobalVariables() {
+        for (Map.Entry<String, Integer> entry : globalVariables.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
     }
 }
