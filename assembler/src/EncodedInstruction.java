@@ -4,5 +4,5 @@
  * @param opcode the opcode integer value
  * @param operand the operand integer value
  */
-public record EncodedInstruction(int opcode, int operand) {
+public record EncodedInstruction(int opcode, int operand, int lineNumber) {
 }

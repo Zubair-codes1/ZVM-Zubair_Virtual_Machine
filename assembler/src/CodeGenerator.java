@@ -139,7 +139,7 @@ public class CodeGenerator {
             }
         }
 
-        return new EncodedInstruction(opcode, operand);
+        return new EncodedInstruction(opcode, operand, parsedLine.lineNumber());
     }
 
 }

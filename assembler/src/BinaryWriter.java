@@ -53,6 +53,7 @@ public class BinaryWriter {
                 dos.writeByte(0);
                 dos.writeByte(0);
                 dos.writeInt(instruction.operand());
+                dos.writeInt(instruction.lineNumber());
             }
         } catch (IOException e) {
             throw new AssemblerException("Failed to write binary file: " + e.getMessage());

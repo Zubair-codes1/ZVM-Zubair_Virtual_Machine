@@ -47,8 +47,8 @@ public class SymbolTable {
      */
     public Integer resolveLabel(String labelName) {
         String cleanName = labelName.startsWith(":") ? labelName.substring(1) : labelName;
-        if (labelMap.containsKey(labelName)) {
-            return labelMap.get(labelName);
+        if (labelMap.containsKey(cleanName)) {
+            return labelMap.get(cleanName);
         }
 
         throw new AssemblerException("Label " + labelName + " not found");
