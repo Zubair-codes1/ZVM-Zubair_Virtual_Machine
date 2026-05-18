@@ -2,7 +2,7 @@ PUSH 100
 STORE hello      ; Global variable "secret" = 100
 CALL :testlogic
 LOAD hello      ; Should still be 100
-PRINT               ; Expected Output: 100
+PRINT_CHAR              ; Expected Output: 100
 HALT
 
 :testlogic

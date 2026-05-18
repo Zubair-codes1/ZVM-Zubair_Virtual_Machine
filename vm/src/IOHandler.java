@@ -16,10 +16,13 @@ public class IOHandler implements InstructionHandler {
         }
 
         int value = virtualMachine.getStack().pop();
-        char character = (char) value;
 
         if (type == OpCode.PRINT_CHAR) {
-            System.out.println("VM OUTPUT: " + character);
+            if (value >=0  && value <= 255) {
+                char character = (char) value;
+                System.out.println("VM OUTPUT: " + character);
+            }
+
         }else if (type == OpCode.PRINT) {
             System.out.println("VM OUTPUT: " + value);
         }
