@@ -1,15 +1,33 @@
 import java.util.*;
 
+/**
+ * A Lexer singleton class that takes one line of
+ * code and converts it into a list of tokens.
+ *
+ * @author Zubair Abddul Matin
+ */
 public class Lexer {
 
+    // singleton
     private static final Lexer INSTANCE = new Lexer();
 
+    // private constructor for singleton
     private Lexer() {}
 
+    /**
+     * Getting the singleton lexer
+     * @return Lexer singleton
+     */
     public static Lexer getInstance() {
         return INSTANCE;
     }
 
+    /**
+     * Takes a string input and its line number and produces tokens from it
+     * @param input string input
+     * @param lineNumber line number of input
+     * @return list of tokens
+     */
     public List<Token> tokenize(String input, int lineNumber) {
         int semicolonIndex = input.indexOf(';');
         if (semicolonIndex != -1) { input = input.substring(0, semicolonIndex); }
