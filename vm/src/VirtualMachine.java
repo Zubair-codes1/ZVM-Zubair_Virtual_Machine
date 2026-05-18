@@ -99,6 +99,13 @@ public class VirtualMachine {
         }
     }
 
+    public void loadFromBinary(String filePath) {
+        BinaryLoader loader = new BinaryLoader();
+        LoadedProgram program = loader.loadProgram(filePath);
+        this.executableInstructions = program.instructions();
+        this.constantPool = new ArrayList<>(program.constantPool());
+    }
+
     public void loadProgramIntoStorage(ArrayList<String> lines) {
         programStorage.clear();
         programStack.clear();
@@ -337,5 +344,9 @@ public class VirtualMachine {
         for (Map.Entry<String, Integer> entry : globalVariables.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
+    }
+
+    public List<Instruction> getExecutableInstructions() {
+        return executableInstructions;
     }
 }

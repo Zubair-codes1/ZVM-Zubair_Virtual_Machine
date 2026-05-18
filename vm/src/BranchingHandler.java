@@ -1,6 +1,19 @@
 import java.util.Stack;
 
+/**
+ * Handles branching
+ *
+ * @author Zubair Abdul Maitn
+ */
 public class BranchingHandler implements InstructionHandler {
+
+    /**
+     * Executes the functions
+     * @param instruction instruction
+     * @param opcode opcode
+     * @param virtualMachine virtual machine state
+     * @throws VirtualMachineException exception
+     */
     @Override
     public void execute(Instruction instruction, OpCode opcode, VirtualMachine virtualMachine) throws VirtualMachineException {
 
@@ -15,6 +28,13 @@ public class BranchingHandler implements InstructionHandler {
         }
     }
 
+    /**
+     * Hanles boolean jump types
+     * @param instruction instruction
+     * @param type opcode
+     * @param virtualMachine virtual machine state
+     * @throws VirtualMachineException exception
+     */
     private void handleBooleanJump(Instruction instruction, OpCode type, VirtualMachine virtualMachine) throws VirtualMachineException {
         int trueOrFalse = getTrueOrFalse(instruction, virtualMachine);
 
@@ -29,8 +49,14 @@ public class BranchingHandler implements InstructionHandler {
         }
     }
 
+    /**
+     * Helper function for handleBooleanJump
+     * @param instruction instruction
+     * @param virtualMachine Virtual machine state
+     * @return true or false
+     */
     private int getTrueOrFalse(Instruction instruction, VirtualMachine virtualMachine) {
-        if (instruction.operand() >= virtualMachine.getProgramStorage().size()) {
+        if (instruction.operand() >= virtualMachine.getExecutableInstructions().size()) {
             throw new VirtualMachineException("Error: Jumping into the void");
         }
 
@@ -46,8 +72,14 @@ public class BranchingHandler implements InstructionHandler {
         return trueOrFalse;
     }
 
+    /**
+     * CALL instruction
+     * @param instruction instruction
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleCall(Instruction instruction, VirtualMachine virtualMachine) throws VirtualMachineException {
-        if (instruction.operand() >= virtualMachine.getProgramStorage().size()) {
+        if (instruction.operand() >= virtualMachine.getExecutableInstructions().size()) {
             throw new VirtualMachineException("Error: Jumping into the void");
         }
 
@@ -57,6 +89,11 @@ public class BranchingHandler implements InstructionHandler {
         virtualMachine.setProgramCounter(instruction.operand() - 1);
     }
 
+    /**
+     * RET instruction
+     * @param virtualMachine virtual machine state
+     * @throws VirtualMachineException exception
+     */
     private void handleRet(VirtualMachine virtualMachine) throws VirtualMachineException {
         if (virtualMachine.getCallStack().isEmpty()) {
             throw new VirtualMachineException("Error: Returning nothing");
