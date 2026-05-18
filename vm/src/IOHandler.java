@@ -21,6 +21,8 @@ public class IOHandler implements InstructionHandler {
             if (value >=0  && value <= 255) {
                 char character = (char) value;
                 System.out.println("VM OUTPUT: " + character);
+            }else {
+                throw new VirtualMachineException("Error: Invalid character!");
             }
 
         }else if (type == OpCode.PRINT) {
