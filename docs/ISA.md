@@ -103,7 +103,7 @@ the function was called from and the program continues from there until the end.
 
 ## **Example Program**
 
-```
+```asm
 PUSH 100        ; Pushes 100 on to the stack  
 STORE secret    ; Global variable "secret" = 100  
 CALL :testlogic ; Calls the testlogic function  

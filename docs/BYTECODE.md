@@ -70,7 +70,7 @@ Instructions with no operands will default to 00 00 00 00 as their operand betwe
 
 Here is an example program in the assembly code and then its equivalent in bytecode format.
 
-```
+```asm
 PUSH 100        ; Pushes 100 on to the stack  
 STORE secret    ; Global variable "secret" = 100  
 CALL :testlogic ; Calls the testlogic function  
@@ -87,7 +87,7 @@ PRINT           ; Expected Output: 11
 RET             ; Return to function call
 ```
 
-```
+```bin
 ; header
 1A 2B                   ; Two bytes for file type check
 01                      ; version
