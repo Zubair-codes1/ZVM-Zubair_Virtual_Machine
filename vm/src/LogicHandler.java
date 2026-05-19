@@ -1,6 +1,19 @@
 import java.util.Stack;
 
+/**
+ * Hnadles logic and comparison functionality
+ *
+ * @author Zubair Abdul Matin
+ */
 public class LogicHandler implements InstructionHandler{
+
+    /**
+     * Executes the logic functionality
+     * @param instruction instruction
+     * @param opcode opcode
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     @Override
     public void execute(Instruction instruction, OpCode opcode, VirtualMachine virtualMachine) throws VirtualMachineException {
         Stack<Integer> programStack = virtualMachine.getStack();
@@ -21,6 +34,11 @@ public class LogicHandler implements InstructionHandler{
 
     }
 
+    /**
+     * Helper method for comparisons
+     * @param programStack program stack
+     * @param type type of comparison
+     */
     private void handleComparison(Stack<Integer> programStack, String type) {
         if  (programStack.size() < 2) { throw new VirtualMachineException("Error: Comparison Requires at least 2 values!"); }
         int right = programStack.pop();
@@ -45,6 +63,11 @@ public class LogicHandler implements InstructionHandler{
 
     }
 
+    /**
+     * Helper method for NOT
+     * @param programStack program stack
+     * @throws VirtualMachineException exception
+     */
     private void handleNot(Stack<Integer> programStack) throws VirtualMachineException {
         if (programStack.isEmpty()) {  throw new VirtualMachineException("Error: Logics Requires at least 2 values!"); }
         int value = programStack.pop() == 1 ? 0 : 1;

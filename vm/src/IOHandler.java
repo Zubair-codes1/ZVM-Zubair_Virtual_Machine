@@ -1,6 +1,19 @@
 import java.util.Scanner;
 
+/**
+ * Handles I/O instructions
+ *
+ * @author Zubair Abdul Matin
+ */
 public class IOHandler implements InstructionHandler {
+
+    /**
+     * Execute I/O instructions
+     * @param instruction instruction
+     * @param opcode opcode
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     @Override
     public void execute(Instruction instruction, OpCode opcode, VirtualMachine virtualMachine) throws VirtualMachineException {
         switch (opcode) {
@@ -10,6 +23,12 @@ public class IOHandler implements InstructionHandler {
         }
     }
 
+    /**
+     * handles print/output functinoality
+     * @param virtualMachine virtual machine
+     * @param type type of print
+     * @throws VirtualMachineException exception
+     */
     private void handlePrint(VirtualMachine virtualMachine, OpCode type) throws VirtualMachineException {
         if (virtualMachine.getStack().isEmpty()) {
             throw new VirtualMachineException("Error: No data to print!");
@@ -30,6 +49,11 @@ public class IOHandler implements InstructionHandler {
         }
     }
 
+    /**
+     * Handles input
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleInput(VirtualMachine virtualMachine) throws VirtualMachineException {
         Scanner sc = new Scanner(System.in);
         System.out.print("> INPUT REQUIRED (Integer): ");

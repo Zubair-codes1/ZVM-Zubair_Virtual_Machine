@@ -1,4 +1,13 @@
+/**
+ * Main class for assembler.
+ * Calls all the other parts of the assembler.
+ * Takes in an input file and produces an output file
+ */
 public class Main {
+    /**
+     * main function that handles assembler execution
+     * @param args input file and output file
+     */
     public static void main(String[] args) {
         if (
                 args.length != 3 || !args[1].equals("-o") || !args[0].endsWith(".asm") || !args[2].endsWith(".bin")

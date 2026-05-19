@@ -1,6 +1,17 @@
 import java.util.ArrayList;
 
+/**
+ * Class to handle math operations
+ */
 public class MathHandler implements InstructionHandler {
+
+    /**
+     * Executes functinoality
+     * @param instruction instruction
+     * @param opcode opcode
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     @Override
     public void execute(Instruction instruction, OpCode opcode, VirtualMachine virtualMachine) throws VirtualMachineException {
         switch (opcode) {
@@ -17,6 +28,11 @@ public class MathHandler implements InstructionHandler {
         }
     }
 
+    /**
+     * Hnadles ADD functionality
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleAdd(VirtualMachine virtualMachine) throws VirtualMachineException {
         if (virtualMachine.getStack().size() < 2) {
             throw new VirtualMachineException("Error: ADD command needs two operands!");
@@ -27,6 +43,11 @@ public class MathHandler implements InstructionHandler {
         virtualMachine.getStack().push(left + right);
     }
 
+    /**
+     * Handles SUB functionality
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleSub(VirtualMachine virtualMachine) throws VirtualMachineException {
         if (virtualMachine.getStack().size() < 2) {
             throw new VirtualMachineException("Error: SUB command needs two operands!");
@@ -36,6 +57,11 @@ public class MathHandler implements InstructionHandler {
         virtualMachine.getStack().push(left - right);
     }
 
+    /**
+     * Handles MULT functionality
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleMult(VirtualMachine virtualMachine) throws VirtualMachineException {
         if (virtualMachine.getStack().size() < 2) {
             throw new VirtualMachineException("Error: MULT command needs two operands!");
@@ -45,6 +71,11 @@ public class MathHandler implements InstructionHandler {
         virtualMachine.getStack().push(left * right);
     }
 
+    /**
+     * Handles DIV functionality
+     * @param virtualMachine virutal machine
+     * @throws VirtualMachineException exception
+     */
     private void handleDiv(VirtualMachine virtualMachine) throws VirtualMachineException {
         if (virtualMachine.getStack().size() < 2) {
             throw new VirtualMachineException("Error: DIV command needs two operands!");
@@ -58,6 +89,11 @@ public class MathHandler implements InstructionHandler {
         virtualMachine.getStack().push(left / right);
     }
 
+    /**
+     * Handles MOD functionality
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleMod(VirtualMachine virtualMachine) throws VirtualMachineException {
         if (virtualMachine.getStack().size() < 2) {
             throw new VirtualMachineException("Error: MOD command needs two operands!");
@@ -71,6 +107,11 @@ public class MathHandler implements InstructionHandler {
         virtualMachine.getStack().push(left % right);
     }
 
+    /**
+     * Handles LSHIFT functionality
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleLShift(VirtualMachine virtualMachine) throws VirtualMachineException {
         if (virtualMachine.getStack().size() < 2) {
             throw new VirtualMachineException("Error: LShift command needs two operands!");
@@ -80,6 +121,11 @@ public class MathHandler implements InstructionHandler {
         virtualMachine.getStack().push(left << right);
     }
 
+    /**
+     * Handles RSHIFT functionality
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleRShift(VirtualMachine virtualMachine) throws VirtualMachineException {
         if (virtualMachine.getStack().size() < 2) {
             throw new VirtualMachineException("Error: RShift command needs two operands!");
@@ -89,6 +135,14 @@ public class MathHandler implements InstructionHandler {
         virtualMachine.getStack().push(left >> right);
     }
 
+    /**
+     * handles INC_LOCAL/DEC_LOCAL functionality
+     * @param instruction instruction
+     * @param opcode opcode
+     * @param virtualMachine virtual machine
+     * @param type type of instruction
+     * @throws VirtualMachineException exception
+     */
     private void handleIncDec(Instruction instruction, OpCode opcode, VirtualMachine virtualMachine, OpCode type) throws VirtualMachineException {
         ArrayList<Integer> localVariables = getIntegers(instruction, virtualMachine);
 
@@ -102,6 +156,12 @@ public class MathHandler implements InstructionHandler {
         localVariables.set(instruction.operand(), safeValue);
     }
 
+    /**
+     * Gets integers from local variable
+     * @param instruction instruction
+     * @param virtualMachine virtual machine
+     * @return a list of integers
+     */
     private static ArrayList<Integer> getIntegers(Instruction instruction, VirtualMachine virtualMachine) {
         if (instruction.operand() == null) {
             throw new VirtualMachineException("Error: Null values for operand!");

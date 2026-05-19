@@ -1,6 +1,19 @@
 import java.util.Stack;
 
+/**
+ * Class to handle the System and Control opcodes
+ *
+ * @author Zubair Abdul Matin
+ */
 public class ControlHandler implements InstructionHandler {
+
+    /**
+     * Executes system and control opcode functions
+     * @param instruction instruction
+     * @param opcode opcode
+     * @param virtualMachine virutal machine state
+     * @throws VirtualMachineException exception
+     */
     @Override
     public void execute(Instruction instruction, OpCode opcode, VirtualMachine virtualMachine) throws VirtualMachineException {
         switch (opcode) {
@@ -12,6 +25,11 @@ public class ControlHandler implements InstructionHandler {
         }
     }
 
+    /**
+     * Dump stack functionality helper method
+     * @param virtualMachine virutal machine
+     * @throws VirtualMachineException exception
+     */
     private void handleDumpStack(VirtualMachine virtualMachine) throws VirtualMachineException {
         System.out.println("#-------STACK DUMP START-------#");
         Stack<Integer> stack = virtualMachine.getStack();

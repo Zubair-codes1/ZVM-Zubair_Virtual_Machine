@@ -1,4 +1,17 @@
+/**
+ * Class to handle memory instructions
+ *
+ * @author Zubair Abdul Matin
+ */
 public class MemoryHandler implements InstructionHandler {
+
+    /**
+     * Executes memory instructions
+     * @param instruction instruction
+     * @param opcode opcode
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     @Override
     public void execute(Instruction instruction, OpCode opcode, VirtualMachine virtualMachine) throws VirtualMachineException {
 
@@ -10,6 +23,12 @@ public class MemoryHandler implements InstructionHandler {
         }
     }
 
+    /**
+     * handles LOAD
+     * @param instruction instruction
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleLoad(Instruction instruction, VirtualMachine virtualMachine) throws VirtualMachineException {
         if (instruction.operand() >= virtualMachine.getConstantPool().size()) {
             throw new VirtualMachineException("Error: Load command overflow!");
@@ -27,6 +46,12 @@ public class MemoryHandler implements InstructionHandler {
         virtualMachine.getStack().push(value);
     }
 
+    /**
+     * handles STORE
+     * @param instruction instruction
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleStore(Instruction instruction, VirtualMachine virtualMachine) throws VirtualMachineException {
         if (instruction.operand() >= virtualMachine.getConstantPool().size()) {
             throw new VirtualMachineException("Error: Store command requires variables!");
@@ -40,6 +65,12 @@ public class MemoryHandler implements InstructionHandler {
         virtualMachine.getGlobalVariables().put(variableName, value);
     }
 
+    /**
+     * handle LOAD_LOCAL
+     * @param instruction instruction
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleLoadLocal(Instruction instruction, VirtualMachine virtualMachine) throws VirtualMachineException {
         Frame activeFrame = virtualMachine.getActiveFrame();
         if (activeFrame == null) {
@@ -59,6 +90,12 @@ public class MemoryHandler implements InstructionHandler {
         virtualMachine.getStack().push(value);
     }
 
+    /**
+     * handles STORE_LOCAL
+     * @param instruction instruction
+     * @param virtualMachine virtual machine
+     * @throws VirtualMachineException exception
+     */
     private void handleStoreLocal(Instruction instruction, VirtualMachine virtualMachine) throws VirtualMachineException {
         Frame activeFrame = virtualMachine.getActiveFrame();
         if (activeFrame == null) {

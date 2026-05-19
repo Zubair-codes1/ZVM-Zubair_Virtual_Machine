@@ -3,6 +3,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Vritual Machine class that controls the FDE cylce.
+ * Connects the entire virtual machine together and holds
+ * all the critical fields such as the program counter, stack, call stack
+ * and more.
+ *
+ * @author Zubair Abdul Matin
+ */
 public class VirtualMachine {
     private int programCounter;
     private Stack<Integer> programStack;
@@ -16,6 +24,9 @@ public class VirtualMachine {
     private final Map<String, OpCode> opCodeMapper;
     private boolean isRunning;
 
+    /**
+     * Virtual machine constructor
+     */
     public VirtualMachine() {
         this.programCounter = 0;
         this.programStack = new Stack<>();
@@ -33,6 +44,9 @@ public class VirtualMachine {
         this.isRunning = true;
     }
 
+    /**
+     * Maps strings to opcode
+     */
     private void setOpCodeMapper() {
         // System and Control
         opCodeMapper.put("HALT", OpCode.HALT);
@@ -88,6 +102,11 @@ public class VirtualMachine {
         opCodeMapper.put("INPUT", OpCode.INPUT);
     }
 
+    /**
+     * Loading directly from an asm file.
+     * This is legacy code that I left here for future compatibility purposes
+     * @param filePath .asm file path
+     */
     public void loadFromFile(String filePath) {
         try {
             List<String> lines = Files.readAllLines(Paths.get(filePath));
@@ -99,6 +118,10 @@ public class VirtualMachine {
         }
     }
 
+    /**
+     * Loads directly from the binary file produces by the assembler
+     * @param filePath file path of binary file
+     */
     public void loadFromBinary(String filePath) {
         BinaryLoader loader = new BinaryLoader();
         LoadedProgram program = loader.loadProgram(filePath);
@@ -106,6 +129,11 @@ public class VirtualMachine {
         this.constantPool = new ArrayList<>(program.constantPool());
     }
 
+    /**
+     * Loads program into storage.
+     * This is also legacy code designed for the loadFromFile function.
+     * @param lines lines of .asm code
+     */
     public void loadProgramIntoStorage(ArrayList<String> lines) {
         programStorage.clear();
         programStack.clear();
@@ -150,6 +178,9 @@ public class VirtualMachine {
 
     }
 
+    /**
+     * Executes the entire program
+     */
     public void executeProgram() {
 
         try {
@@ -178,6 +209,11 @@ public class VirtualMachine {
 
     }
 
+    /**
+     * Fetches one instruction from the executable instructions
+     * Used as a helper method.
+     * @return Instruction
+     */
     private Instruction fetchInstruction() {
         if (!executableInstructions.isEmpty() && programCounter < executableInstructions.size()) {
             return executableInstructions.get(programCounter);
@@ -185,6 +221,12 @@ public class VirtualMachine {
         return null;
     }
 
+    /**
+     * Decodes an instruction string into an Instruction
+     * @param instruction instruction string
+     * @param lineNumber line number of instruction
+     * @return Instruction record
+     */
     private Instruction decode(String instruction, Integer lineNumber) {
         instruction = instruction.trim();
         // Using \\s+ handles multiple spaces between words in a text file
@@ -252,6 +294,11 @@ public class VirtualMachine {
         return new Instruction(opcode, 0, lineNumber);
     }
 
+    /**
+     * Executes one step based on type of instruction.
+     * Calls each specific handler based on the type passed in.
+     * @param instruction instruction
+     */
     private void executeOneStep(Instruction instruction) {
         OpCode opCode = instruction.opcode();
         switch (opCode.getCategory()) {
@@ -266,6 +313,9 @@ public class VirtualMachine {
         }
     }
 
+    /**
+     * Returns all data in program stack
+     */
     public void returnStackData() {
         while (!programStack.isEmpty()) {
             Integer operand = programStack.pop();
@@ -273,11 +323,19 @@ public class VirtualMachine {
         }
     }
 
+    /**
+     * Gets functino name from function map
+     * @param programCounter program counter
+     * @return map entry name
+     */
     public String getFunctionName(int programCounter) {
         Map.Entry<Integer, String> entry = addressToLabel.floorEntry(programCounter);
         return (entry != null) ? entry.getValue() : "MAIN";
     }
 
+    /**
+     * Prints out function call trace
+     */
     public void printFunctionStackTrace() {
         System.err.println("\nStack Trace (Most recent call first):");
 
@@ -298,54 +356,94 @@ public class VirtualMachine {
         }
     }
 
+    /**
+     * Gets program stack
+     * @return program stack
+     */
     public Stack<Integer> getStack() {
         return programStack;
     }
 
+    /**
+     * Get program counter value
+     * @return program counter
+     */
     public int getProgramCounter() {
         return programCounter;
     }
 
+    /**
+     * Set program counter
+     * @param programCounter new program counter
+     */
     public void setProgramCounter(int programCounter) {
         this.programCounter = programCounter;
     }
 
+    /**
+     * Set is running
+     * @param isRunning program running boolean
+     */
     public void setIsRunning(boolean isRunning) {
         this.isRunning = isRunning;
     }
+
 
     public boolean getIsRunning() {
         return isRunning;
     }
 
+    /**
+     * @return program storage
+     */
     public ArrayList<String> getProgramStorage() {
         return programStorage;
     }
 
 
+    /**
+     * @return constant pool
+     */
     public ArrayList<String> getConstantPool() {
         return constantPool;
     }
 
+    /**
+     * @return global variables
+     */
     public Map<String, Integer> getGlobalVariables() {
         return globalVariables;
     }
 
+    /**
+     * @return current active frame
+     */
     public Frame getActiveFrame() {
         if (callStack.isEmpty()) throw new VirtualMachineException("Error: callStack is empty");
         return callStack.peek();
     }
 
+    /**
+     * gets function call stack
+     * @return function call stack
+     */
     public Stack<Frame> getCallStack() {
         return callStack;
     }
 
+    /**
+     * Prints the global variables
+     */
     public void printGlobalVariables() {
         for (Map.Entry<String, Integer> entry : globalVariables.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
     }
 
+    /**
+     * Gets executable instructions
+     * @return executable instructions
+     */
     public List<Instruction> getExecutableInstructions() {
         return executableInstructions;
     }

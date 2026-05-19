@@ -1,3 +1,9 @@
+/**
+ * Enum to store all instructions, their hex value,
+ * their type and their scope.
+ *
+ * @author Zubair Abdul Matin
+ */
 public enum OpCode {
     // System and Control
     HALT(0x00, OpCodeCategory.SYSTEM, ScopeCategory.GLOBAL),
@@ -53,22 +59,45 @@ public enum OpCode {
     PRINT_CHAR(0x61, OpCodeCategory.IO, ScopeCategory.GLOBAL),
     INPUT(0x62, OpCodeCategory.IO, ScopeCategory.GLOBAL);
 
+    // hex value
     private int value;
+    // category
     private OpCodeCategory category;
+    // scope
     private ScopeCategory scope;
+
+    /**
+     * Opcode constructor
+     * @param value hex value
+     * @param category type
+     * @param scope scope
+     */
     OpCode(int value, OpCodeCategory category, ScopeCategory scope) {
         this.value = value;
         this.category = category;
         this.scope = scope;
     }
 
+    /**
+     * get Hex value
+     * @return hex value
+     */
     public int getValue() {
         return value;
     }
+
+    /**
+     * Get category
+     * @return category
+     */
     public OpCodeCategory getCategory() {
         return category;
     }
 
+    /**
+     * Get Scope
+     * @return scope
+     */
     public ScopeCategory getScope() {
         return scope;
     }

@@ -1,3 +1,8 @@
+/**
+ * Op code categories
+ *
+ * @author Zubair Abdul Matin
+ */
 public enum OpCodeCategory {
     SYSTEM,
     STACK,
