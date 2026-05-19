@@ -89,7 +89,7 @@ RET             ; Return to function call
 
 ```
 ; header
-ZV MA                   ; Two bytes for file type check
+1A 2B                   ; Two bytes for file type check
 01                      ; version
 00 00 00 00             ; entry point of program - instruction 0
 00 00 00 0C             ; 12 instructions
