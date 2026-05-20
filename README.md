@@ -1,9 +1,23 @@
 # **ZVM - ZUBAIR VIRTUAL MACHINE**
 
-The ZVM is a custom-built virtual machine that is turing complete and comes with a
-complete toolchain. This includes a custom ISA, an assembler (along with a custom bytecode)
+## **What is a Virtual Machine?**
+
+A virtual machine is a complete software resource that acts as its own physical computer
+whilst being seperate from the actual device it is running on. In simpler terms, it is a 
+software based computer within a real computer. It has its own virtual CPU, memory and storage.
+Virtual Machines provide a great way of mimicking other architectures and running them on your device.
+They are also very useful in providing a protective layer over the actual hardware, as any malware or 
+cyberattacks are carried out on the virtual machine rather than the actual hardware (although in recent
+years there has been an increase in malware designed to bypass them).
+
+## **What is the ZVM?**
+
+The ZVM is a custom-built stack-based virtual machine that is turing complete and comes with a
+complete toolchain. This includes a custom ISA (Instruction Set Architecture), an assembler (along with a custom bytecode)
 and a virtual machine to run the programs. Programs can either be run through binary or through
-the .asm files straight away.
+the .asm files straight away. The ZVM has its own Fetch-Decode-Execute (FDE) cycle along with a program stack
+to manage its memory. It also uses a program counter (typical of CPUs) to keep track of lines allowing for both sequential
+and non-sequential (functions/recursion/loops) programs to be run.
 
 ## **Program Structure**
 
@@ -261,3 +275,23 @@ Each function has an associated frame. This frame stores its local variables.
 Every time a function is called, a new frame is created and put in the call stack.
 The frame at the top of the stack is the current active frame, and it is where all the
 LOCAL instructions act upon. Once the RET instruction is executed, the active frame is removed.
+
+## **Design Decisions**
+
+Building a VM comes with a lot of decision-making and considerations of tradeoffs. Below I list a few
+features that I implemented in my VM and the possible tradeoffs of it compared to other methods.
+
+1. Stack-based vs Register-based: I chose a stack-based architecture for its simpler implementation
+and smaller ISA, making it more approachable for anyone writing programs for the ZVM.
+The tradeoff is performance: register-based VMs are generally faster and more optimisable,
+but that wasn't a priority here.
+2. Why a two-pass assembler? A single-pass assembler can't resolve forward references 
+— labels defined later in the program than the jump that targets them. 
+The first pass builds a symbol table of all labels and constants upfront, 
+so the second pass can encode every instruction correctly regardless of label order.
+3. Why frames? Each function call gets its own frame on the call stack, 
+holding its local variables and return address. This makes recursion work naturally
+(each call is fully isolated) and lets me design LOCAL instructions that always target
+the active frame without any ambiguity.
+4. Why JAR files? JAR files makes running programs on the VM much easier without understanding
+the actual functionality of the VM and the assembler. This makes the project more accessible.
