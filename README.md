@@ -10,47 +10,60 @@ the .asm files straight away.
 ````
 VirtualMachine/
 ├── assembler/
-│   └── src/
-│       ├── Assembler.java
-│       ├── AssemblerException.java
-│       ├── BinaryWriter.java
-│       ├── CodeGenerator.java
-│       ├── EncodedInstruction.java
-│       ├── Lexer.java
-│       ├── Main.java
-│       ├── ParsedLine.java
-│       ├── Parser.java
-│       ├── SymbolTable.java
-│       ├── Token.java
-│       └── TokenType.java
+│   ├── src/
+│   │   ├── Assembler.java
+│   │   ├── AssemblerException.java
+│   │   ├── BinaryWriter.java
+│   │   ├── CodeGenerator.java
+│   │   ├── EncodedInstruction.java
+│   │   ├── Lexer.java
+│   │   ├── Main.java
+│   │   ├── ParsedLine.java
+│   │   ├── Parser.java
+│   │   ├── SymbolTable.java
+│   │   ├── Token.java
+│   │   └── TokenType.java
+│   └── tests/
+│       ├── LexerTest.java
+│       ├── ParserTest.java
+│       ├── SymbolTableTest.java
+│       ├── CodeGeneratorTest.java
+│       └── FullAssemblerTest.java
 ├── vm/
-│   └── src/
-│       ├── BinaryLoader.java
-│       ├── BranchingHandler.java
-│       ├── ControlHandler.java
-│       ├── Frame.java
-│       ├── Instruction.java
-│       ├── InstructionHandler.java
-│       ├── IOHandler.java
-│       ├── LoadedProgram.java
-│       ├── LogicHandler.java
-│       ├── Main.java
-│       ├── MathHandler.java
-│       ├── MemoryHandler.java
-│       ├── OpCode.java
-│       ├── OpCodeCategory.java
-│       ├── ScopeCategory.java
-│       ├── StackHandler.java
-│       ├── VirtualMachine.java
-│       └── VirtualMachineException.java
+│   ├── src/
+│   │   ├── BinaryLoader.java
+│   │   ├── BranchingHandler.java
+│   │   ├── ControlHandler.java
+│   │   ├── Frame.java
+│   │   ├── Instruction.java
+│   │   ├── InstructionHandler.java
+│   │   ├── IOHandler.java
+│   │   ├── LoadedProgram.java
+│   │   ├── LogicHandler.java
+│   │   ├── Main.java
+│   │   ├── MathHandler.java
+│   │   ├── MemoryHandler.java
+│   │   ├── OpCode.java
+│   │   ├── OpCodeCategory.java
+│   │   ├── ScopeCategory.java
+│   │   ├── StackHandler.java
+│   │   ├── VirtualMachine.java
+│   │   └── VirtualMachineException.java
+│   └── tests/
+│       ├── BinaryLoaderTest.java
+│       └── VirtualMachineTest.java
 ├── programs/
 │   ├── hello_world.asm
 │   ├── factorial.asm
 │   └── fibonacci.asm
 ├── output/
+│   └── .gitkeep
 ├── docs/
 │   ├── ISA.md
 │   └── BYTECODE.md
+├── assembler.jar
+├── vm.jar
+├── .gitignore
 └── README.md
 ````
 
@@ -69,17 +82,13 @@ to encode the instructions in binary using hex values. You can find the link to 
 ## **Assembling Programs**
 
 ```
-cd assembler/src
-javac *.java
-java Main <input.asm> -o <output.bin>
+java -jar assembler.jar <input.asm> -o <output.bin>
 ```
 
 ## **Running Binary Programs**
 
 ```
-cd vm/src
-javac *.java
-java Main <program.bin>
+java -jar vm.jar <program.bin>
 ```
 
 ## **Example Programs**
@@ -117,8 +126,8 @@ RET
 **Assemble And Run**
 
 ```
-java Main programs/factorial.asm -o output/factorial.bin
-java Main output/factorial.bin
+java -jar assembler.jar programs/factorial.asm -o output/factorial.bin
+java -jar vm.jar output/factorial.bin
 ```
 
 **Expected Output**
@@ -162,8 +171,8 @@ HALT
 **Assemble And Run**
 
 ```
-java Main programs/hello_world.asm -o output/hello_world.bin
-java Main output/hello_world.bin
+java -jar assembler.jar programs/hello_world.asm -o output/hello_world.bin
+java -jar vm.jar output/hello_world.bin
 ```
 
 
@@ -227,8 +236,8 @@ RET
 **Assemble And Run**
 
 ```
-java Main programs/fibonacci.asm -o output/fibonacci.bin
-java Main output/fibonacci.bin
+java -jar assembler.jar programs/fibonacci.asm -o output/fibonacci.bin
+java -jar vm.jar output/fibonacci.bin
 ```
 
 **Expected Output**
