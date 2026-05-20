@@ -3,7 +3,7 @@
 *.iml
 .idea/
 out/
-output/
+output/*.bin
 !**/src/main/**/out/
 !**/src/test/**/out/
 .kotlin
