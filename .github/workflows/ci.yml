@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Download JUnit 5
+        run: |
+          wget -q "https://search.maven.org/remotecontent?filepath=org/junit/platform/junit-platform-console-standalone/1.10.0/junit-platform-console-standalone-1.10.0.jar" -O junit.jar
+
+      - name: Create output directories
+        run: mkdir -p out/assembler out/vm
+
+      - name: Compile assembler
+        run: |
+          javac -cp junit.jar \
+            assembler/src/*.java assembler/tests/*.java \
+            -d out/assembler
+
+      - name: Run assembler tests
+        run: |
+          java -jar junit.jar \
+            --class-path out/assembler \
+            --select-class LexerTest \
+            --select-class ParserTest \
+            --select-class SymbolTableTest \
+            --select-class CodeGeneratorTest \
+            --select-class FullAssemblerTest
+
+      - name: Compile VM
+        run: |
+          javac -cp junit.jar \
+            vm/src/*.java vm/tests/*.java \
+            -d out/vm
+
+      - name: Run VM tests
+        run: |
+          java -jar junit.jar \
+            --class-path out/vm \
+            --select-class BinaryLoaderTest \
+            --select-class VirtualMachineTest
