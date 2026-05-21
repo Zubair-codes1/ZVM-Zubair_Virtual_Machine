@@ -1,13 +1,12 @@
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExecutionCondition;
 
 import java.util.ArrayList;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CodeGeneratorTests {
+public class CodeGeneratorTest {
 
-    public CodeGeneratorTests() {}
+    public CodeGeneratorTest() {}
 
     @Test
     void testPushEncodedCorrectly() {
