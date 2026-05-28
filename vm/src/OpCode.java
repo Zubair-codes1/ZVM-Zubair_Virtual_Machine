@@ -16,6 +16,7 @@ public enum OpCode {
     DUP(0x12, OpCodeCategory.STACK, ScopeCategory.GLOBAL),
     SWAP(0x13, OpCodeCategory.STACK, ScopeCategory.GLOBAL),
     OVER(0x14, OpCodeCategory.STACK, ScopeCategory.GLOBAL),
+    PUSH_STR(0x15, OpCodeCategory.STACK, ScopeCategory.GLOBAL),
 
     // Arithmetic Operations
     ADD(0x20, OpCodeCategory.MATH, ScopeCategory.GLOBAL),
@@ -53,11 +54,15 @@ public enum OpCode {
     STORE(0x51,  OpCodeCategory.MEMORY, ScopeCategory.GLOBAL),
     LOAD_LOCAL(0x52, OpCodeCategory.MEMORY, ScopeCategory.LOCAL),
     STORE_LOCAL(0x53, OpCodeCategory.MEMORY, ScopeCategory.LOCAL),
+    ALLOC(0x54, OpCodeCategory.MEMORY, ScopeCategory.GLOBAL),
+    STORE_HEAP(0x55, OpCodeCategory.MEMORY, ScopeCategory.GLOBAL),
+    LOAD_HEAP(0x56, OpCodeCategory.MEMORY, ScopeCategory.LOCAL),
 
     // I/O
     PRINT(0x60, OpCodeCategory.IO, ScopeCategory.GLOBAL),
     PRINT_CHAR(0x61, OpCodeCategory.IO, ScopeCategory.GLOBAL),
-    INPUT(0x62, OpCodeCategory.IO, ScopeCategory.GLOBAL);
+    INPUT(0x62, OpCodeCategory.IO, ScopeCategory.GLOBAL),
+    PRINT_STR(0x63, OpCodeCategory.IO, ScopeCategory.GLOBAL);
 
     // hex value
     private int value;

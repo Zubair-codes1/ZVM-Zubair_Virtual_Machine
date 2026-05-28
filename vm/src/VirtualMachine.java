@@ -33,6 +33,8 @@ public class VirtualMachine {
         this.programCounter = 0;
         this.programStack = new Stack<>();
         this.callStack = new Stack<>();
+        this.heap = new byte[1000];
+        this.heapPointer = 0;
         this.programStorage = new ArrayList<>();
         this.executableInstructions = new ArrayList<>();
         this.labels = new HashMap<>();
@@ -448,5 +450,29 @@ public class VirtualMachine {
      */
     public List<Instruction> getExecutableInstructions() {
         return executableInstructions;
+    }
+
+    /**
+     * Get Heap
+     * @return heap
+     */
+    public byte[] getHeap() {
+        return heap;
+    }
+
+    /**
+     * Heap Pointer getter
+     * @return heap pointer
+     */
+    public int getHeapPointer() {
+        return heapPointer;
+    }
+
+    /**
+     * Sets the heapPointer using an offset
+     * @param offset offset for heap pointer
+     */
+    public void setHeapPointer(int offset) {
+        this.heapPointer = this.heapPointer + offset;
     }
 }

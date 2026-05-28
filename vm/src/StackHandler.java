@@ -23,6 +23,7 @@ public class StackHandler implements InstructionHandler {
             case DUP -> handleDup(programStack);
             case SWAP -> handleSwap(programStack);
             case OVER -> programStack.push(programStack.get(programStack.size() - 2));
+            case PUSH_STR -> handlePushStr();
         }
     }
 
@@ -67,5 +68,13 @@ public class StackHandler implements InstructionHandler {
     private void handleOver(Stack<Integer> programStack) throws VirtualMachineException {
         if (programStack.size() < 2) { throw new VirtualMachineException("Error: Nothing to over!"); }
         programStack.push(programStack.get(programStack.size() - 2));
+    }
+
+    /**
+     * Handles pushing strings
+     * @throws VirtualMachineException exception
+     */
+    private void handlePushStr() throws VirtualMachineException {
+
     }
 }
