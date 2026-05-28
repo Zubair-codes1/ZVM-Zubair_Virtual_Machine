@@ -9,5 +9,6 @@ public enum TokenType {
     LABEL_DEFINITION,   // Defining a label
     LABEL_REFERENCE,    // label reference
     IDENTIFIER,         // identifier - such as variable names
+    STRING,             // string tokens - wrapped in double quotes
     UNKNOWN             // Unknown token type
 }

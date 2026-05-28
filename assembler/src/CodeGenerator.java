@@ -36,6 +36,7 @@ public class CodeGenerator {
         opCodeMapper.put("DUP", 0x12);
         opCodeMapper.put("SWAP", 0x13);
         opCodeMapper.put("OVER", 0x14);
+        opCodeMapper.put("PUSH_STR", 0x15);
 
         // Arithmetic Operations
         opCodeMapper.put("ADD", 0x20);
@@ -72,11 +73,15 @@ public class CodeGenerator {
         opCodeMapper.put("STORE", 0x51);
         opCodeMapper.put("LOAD_LOCAL", 0x52);
         opCodeMapper.put("STORE_LOCAL", 0x53);
+        opCodeMapper.put("ALLOC", 0x54);
+        opCodeMapper.put("LOAD_HEAP", 0x55);
+        opCodeMapper.put("STORE_HEAP", 0x56);
 
         // I/O
         opCodeMapper.put("PRINT", 0x60);
         opCodeMapper.put("PRINT_CHAR", 0x61);
         opCodeMapper.put("INPUT", 0x62);
+        opCodeMapper.put("PRINT_STR",  0x63);
     }
 
     /**
@@ -132,7 +137,7 @@ public class CodeGenerator {
         if (parsedLine.operandType() != null) {
             if (parsedLine.operandType().equals(TokenType.INTEGER)) {
                 operand = Integer.parseInt(parsedLine.operandValue());
-            } else if (parsedLine.operandType().equals(TokenType.IDENTIFIER)) {
+            } else if (parsedLine.operandType().equals(TokenType.IDENTIFIER) || parsedLine.operandType().equals(TokenType.STRING)) {
                 operand = symbolTable.resolveConstantPool(parsedLine.operandValue());
             }else if (parsedLine.operandType().equals(TokenType.LABEL_REFERENCE)) {
                 operand = symbolTable.resolveLabel(parsedLine.operandValue());

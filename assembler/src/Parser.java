@@ -100,8 +100,11 @@ public class Parser {
      * @param operand opcode operand
      */
     private void checkErrors(Token opcode, Token operand, int lineNumber) {
-        if (opcode.tokenValue().equals("PUSH") && operand == null) {
-            errors.add("PUSH requires an operand at line " + lineNumber);
+        if (
+                (opcode.tokenValue().equals("PUSH") || opcode.tokenValue().equals("PUSH_STR")) &&
+                (operand == null || (!operand.type().equals(TokenType.INTEGER) && !operand.type().equals(TokenType.STRING)))
+        ) {
+            errors.add("PUSH/PUSH_STR requires a valid integer or string operand at line " + lineNumber);
         }
 
         if (
@@ -121,10 +124,12 @@ public class Parser {
 
         if (
                 (opcode.tokenValue().equals("LOAD_LOCAL") || opcode.tokenValue().equals("STORE_LOCAL")
-                 || opcode.tokenValue().equals("INC_LOCAL") || opcode.tokenValue().equals("DEC_LOCAL"))
+                 || opcode.tokenValue().equals("INC_LOCAL") || opcode.tokenValue().equals("DEC_LOCAL")
+                 || opcode.tokenValue().equals("ALLOC") || opcode.tokenValue().equals("LOAD_HEAP") ||
+                 opcode.tokenValue().equals("STORE_HEAP"))
                 && (operand == null || !operand.type().equals(TokenType.INTEGER))
         ) {
-            errors.add("Local instructions require integer operand at line " + lineNumber);
+            errors.add("Local and heap instructions require integer operand at line " + lineNumber);
         }
     }
 }

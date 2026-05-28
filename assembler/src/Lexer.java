@@ -46,19 +46,34 @@ public class Lexer {
             return tokens;
         }
 
-        String[] split = cleanedInput.split("\\s+");
-        String opCode = split[0];
+        // Extract the opcode (first word up to the first whitespace)
+        int firstSpace = cleanedInput.indexOf(' ');
+        String opCode;
+        String operandStr = null;
+
+        if (firstSpace == -1) {
+            opCode = cleanedInput;
+        } else {
+            opCode = cleanedInput.substring(0, firstSpace).strip();
+            operandStr = cleanedInput.substring(firstSpace).strip(); // Everything else is the raw operand
+        }
+
         tokens.add(new Token(TokenType.OPCODE, opCode, lineNumber));
 
-        if (split.length > 1) {
-            if (split[1].startsWith(":")) {
-                tokens.add(new Token(TokenType.LABEL_REFERENCE, split[1], lineNumber));
-            }else {
+        // If there is an operand substring left to process...
+        if (operandStr != null && !operandStr.isEmpty()) {
+            if (operandStr.startsWith(":")) {
+                tokens.add(new Token(TokenType.LABEL_REFERENCE, operandStr, lineNumber));
+            } else if (operandStr.startsWith("\"") && operandStr.endsWith("\"")) {
+                // Strip the quotes and treat as a clean string literal
+                String cleanString = operandStr.substring(1, operandStr.length() - 1);
+                tokens.add(new Token(TokenType.STRING, cleanString, lineNumber));
+            } else {
                 try {
-                    int num = Integer.parseInt(split[1]);
-                    tokens.add(new Token(TokenType.INTEGER, split[1], lineNumber));
-                }catch (NumberFormatException e) {
-                    tokens.add(new Token(TokenType.IDENTIFIER, split[1], lineNumber));
+                    Integer.parseInt(operandStr);
+                    tokens.add(new Token(TokenType.INTEGER, operandStr, lineNumber));
+                } catch (NumberFormatException e) {
+                    tokens.add(new Token(TokenType.IDENTIFIER, operandStr, lineNumber));
                 }
             }
         }

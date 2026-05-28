@@ -35,6 +35,11 @@ public class SymbolTable {
                         constantPool.add(parsedLine.operandValue());
                     }
                 }
+                else if (parsedLine.operandType() != null && parsedLine.operandType().equals(TokenType.STRING)) {
+                    if (!constantPool.contains(parsedLine.operandValue())) {
+                        constantPool.add(parsedLine.operandValue());
+                    }
+                }
                 counter++;
             }
         }

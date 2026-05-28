@@ -13,15 +13,15 @@ years there has been an increase in malware designed to bypass them).
 ## **What is the ZVM?**
 
 The ZVM is a custom-built stack-based virtual machine that is turing complete and comes with a
-complete toolchain. This includes a custom ISA (Instruction Set Architecture), an assembler (along with a custom bytecode)
-and a virtual machine to run the programs. Programs can either be run through binary or through
+complete toolchain. This includes a custom ISA (Instruction Set Architecture), an assembler (along with a custom bytecode), 
+a virtual machine to run the programs and a global heap to store dynamic memory such as strings. Programs can either be run through binary or through
 the .asm files straight away. The ZVM has its own Fetch-Decode-Execute (FDE) cycle along with a program stack
 to manage its memory. It also uses a program counter (typical of CPUs) to keep track of lines allowing for both sequential
 and non-sequential (functions/recursion/loops) programs to be run.
 
 ## **Program Structure**
 
-````
+```
 VirtualMachine/
 ├── assembler/
 │   ├── src/
@@ -79,7 +79,28 @@ VirtualMachine/
 ├── vm.jar
 ├── .gitignore
 └── README.md
-````
+```
+
+## **ARCHITECTURE**
+
+```
+[ Your Source Code ] (.asm)
+         │
+         ▼
+ ┌───────────────┐
+ │   Zembler     │ ──► Pass 1: Scan Labels & Build Constant Pool
+ │  (Assembler)  │ ──► Pass 2: Map Opcodes & Emit 12-byte Instructions
+ └───────────────┘
+         │
+         ▼
+[ Binary Bytecode ] (.bin)
+         │
+         ▼
+ ┌───────────────┐
+ │  ZVM Engine   │ ──► Dual Memory: [ Call Stack Frames ] (Local Variables)
+ │   (Runtime)   │                  [ Global Byte Heap ] (Dynamic Strings)
+ └───────────────┘
+```
 
 ## **ISA**
 
@@ -152,58 +173,53 @@ VM OUTPUT: 120
 
 ---
 
-### **Hello World**
+### **ZVM Engine - Strings**
 
-Prints "Hello World".
+Prints "ZVM Engine is Online" twenty times.
 
 ```asm
-PUSH 72
-PRINT_CHAR
-PUSH 101
-PRINT_CHAR
-PUSH 108
-PRINT_CHAR
-PUSH 108
-PRINT_CHAR
-PUSH 111
-PRINT_CHAR
-PUSH 32
-PRINT_CHAR
-PUSH 87
-PRINT_CHAR
-PUSH 111
-PRINT_CHAR
-PUSH 114
-PRINT_CHAR
-PUSH 108
-PRINT_CHAR
-PUSH 100
-PRINT_CHAR
+; --- Initialize Loop Control Variables ---
+PUSH 0
+STORE loop_counter
+
+; --- Load String References ---
+PUSH_STR "ZVM Engine is Online" ; Allocated inside Constant Pool via Assembler
+STORE message_ptr
+
+:print_loop
+LOAD loop_counter
+PUSH 20
+LT                  ; Evaluates: loop_counter < 20
+                    ; Pushes strictly 1 if true, 0 if false.
+
+JIF :exit_program   ; If loop condition is strictly 0 (False), break out
+
+LOAD message_ptr    ; Fetch the heap base address pointer
+PRINT_STR           ; Custom string printer processes target item
+
+; Increment Loop Pointer
+LOAD loop_counter
+PUSH 1
+ADD
+STORE loop_counter
+JUMP :print_loop
+
+:exit_program
 HALT
 ```
 
 **Assemble And Run**
 
 ```
-java -jar assembler.jar programs/hello_world.asm -o output/hello_world.bin
-java -jar vm.jar output/hello_world.bin
+java -jar assembler.jar programs/dynamic_strings.asm -o output/dynamic_strings.bin
+java -jar vm.jar output/dynamic_strings.bin
 ```
 
 
 **Expected Output**
 
 ```
-VM OUTPUT: H
-VM OUTPUT: e
-VM OUTPUT: l
-VM OUTPUT: l
-VM OUTPUT: o
-VM OUTPUT:  
-VM OUTPUT: W
-VM OUTPUT: o
-VM OUTPUT: r
-VM OUTPUT: l
-VM OUTPUT: d
+VM OUTPUT: ZVM Engine is Online (printed 20 times)
 ```
 
 ---
@@ -275,6 +291,9 @@ Each function has an associated frame. This frame stores its local variables.
 Every time a function is called, a new frame is created and put in the call stack.
 The frame at the top of the stack is the current active frame, and it is where all the
 LOCAL instructions act upon. Once the RET instruction is executed, the active frame is removed.
+
+Strings can be used using a global heap which is accessed using a heap pointer. Strings are 
+put into the heap using a length prefixed format in which the first 4 bytes represent the length of the string.
 
 ## **Design Decisions**
 
