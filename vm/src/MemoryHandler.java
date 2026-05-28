@@ -21,8 +21,9 @@ public class MemoryHandler implements InstructionHandler {
             case LOAD_LOCAL -> handleLoadLocal(instruction, virtualMachine);
             case STORE_LOCAL -> handleStoreLocal(instruction, virtualMachine);
             case ALLOC -> handleMemAlloc(instruction, virtualMachine);
-            case STORE_HEAP -> handleStoreHeap(instruction, virtualMachine);
             case LOAD_HEAP -> handleLoadHeap(instruction, virtualMachine);
+            case STORE_HEAP -> handleStoreHeap(instruction, virtualMachine);
+
         }
     }
 

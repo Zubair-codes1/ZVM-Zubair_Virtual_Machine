@@ -20,6 +20,7 @@ public class IOHandler implements InstructionHandler {
             case PRINT -> handlePrint(virtualMachine, OpCode.PRINT);
             case PRINT_CHAR -> handlePrint(virtualMachine, OpCode.PRINT_CHAR);
             case INPUT -> handleInput(virtualMachine);
+            case PRINT_STR -> handlePrintStr(instruction, virtualMachine);
         }
     }
 
@@ -66,5 +67,32 @@ public class IOHandler implements InstructionHandler {
         }
         int value = sc.nextInt();
         virtualMachine.getStack().push(value);
+    }
+
+    /**
+     * Print a string from the heap
+     * @param instruction instruction
+     * @param virtualMachine virtual Machine
+     * @throws VirtualMachineException exception
+     */
+    private void  handlePrintStr(Instruction instruction, VirtualMachine virtualMachine) throws VirtualMachineException {
+        if (virtualMachine.getStack().isEmpty()) {
+            throw new VirtualMachineException("Error: No data in stack!");
+        }
+
+        int address = virtualMachine.getStack().pop();
+        byte[] heap = virtualMachine.getHeap();
+
+        final int LENGTH_PREFIX = 4;
+
+        int length = ((heap[address] & 0xFF) << 24) | ((heap[address + 1] & 0xFF) << 16) |
+                ((heap[address + 2] & 0xFF) << 8) | (heap[address + 3] & 0xFF);
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            sb.append((char) heap[address + LENGTH_PREFIX + i]);
+        }
+
+        System.out.println("VM OUTPUT: " + sb);
     }
 }

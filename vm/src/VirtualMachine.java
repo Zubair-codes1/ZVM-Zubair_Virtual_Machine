@@ -63,6 +63,7 @@ public class VirtualMachine {
         opCodeMapper.put("DUP", OpCode.DUP);
         opCodeMapper.put("SWAP", OpCode.SWAP);
         opCodeMapper.put("OVER", OpCode.OVER);
+        opCodeMapper.put("PUSH_STR", OpCode.PUSH_STR);
 
         // Arithmetic operations
         opCodeMapper.put("ADD", OpCode.ADD);
@@ -99,11 +100,15 @@ public class VirtualMachine {
         opCodeMapper.put("STORE", OpCode.STORE);
         opCodeMapper.put("STORE_LOCAL", OpCode.STORE_LOCAL);
         opCodeMapper.put("LOAD_LOCAL", OpCode.LOAD_LOCAL);
+        opCodeMapper.put("ALLOC", OpCode.ALLOC);
+        opCodeMapper.put("LOAD_HEAP", OpCode.LOAD_HEAP);
+        opCodeMapper.put("STORE_HEAP", OpCode.STORE_HEAP);
 
         // I/O
         opCodeMapper.put("PRINT", OpCode.PRINT);
         opCodeMapper.put("PRINT_CHAR", OpCode.PRINT_CHAR);
         opCodeMapper.put("INPUT", OpCode.INPUT);
+        opCodeMapper.put("PRINT_STR", OpCode.PRINT_STR);
     }
 
     /**

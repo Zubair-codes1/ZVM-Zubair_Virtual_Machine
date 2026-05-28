@@ -1,3 +1,4 @@
+import java.nio.charset.StandardCharsets;
 import java.util.Stack;
 
 /**
@@ -23,7 +24,7 @@ public class StackHandler implements InstructionHandler {
             case DUP -> handleDup(programStack);
             case SWAP -> handleSwap(programStack);
             case OVER -> programStack.push(programStack.get(programStack.size() - 2));
-            case PUSH_STR -> handlePushStr();
+            case PUSH_STR -> handlePushStr(instruction, virtualMachine);
         }
     }
 
@@ -72,9 +73,44 @@ public class StackHandler implements InstructionHandler {
 
     /**
      * Handles pushing strings
+     * @param instruction instruction
+     * @param virtualMachine virtual machine
      * @throws VirtualMachineException exception
      */
-    private void handlePushStr() throws VirtualMachineException {
+    private void handlePushStr(Instruction instruction, VirtualMachine virtualMachine) throws VirtualMachineException {
+        if (instruction.operand() == null) {
+            throw new VirtualMachineException("Error: PUSH_STR Requires a constant pool index!");
+        }
 
+        String stringValue = virtualMachine.getConstantPool().get(instruction.operand());
+        byte[] stringBytes = stringValue.getBytes(StandardCharsets.US_ASCII);
+        int length = stringBytes.length;
+
+        final int LENGTH_PREFIX = 4;
+        int totalBytes = LENGTH_PREFIX + length;
+
+        int startingAddress = virtualMachine.getHeapPointer();
+        byte[] heap = virtualMachine.getHeap();
+
+        // check if heap is big enough
+        if (startingAddress + totalBytes > heap.length) {
+            throw new VirtualMachineException("Error: Heap overflow during PUSH_STR!");
+        }
+
+        // push the length values as 4 bytes
+        heap[startingAddress]     = (byte) ((length >> 24) & 0xFF);
+        heap[startingAddress + 1] = (byte) ((length >> 16) & 0xFF);
+        heap[startingAddress + 2] = (byte) ((length >> 8)  & 0xFF);
+        heap[startingAddress + 3] = (byte) (length         & 0xFF);
+
+        // adding the rest of the characters
+        for (int i = 0; i < length; i++) {
+            heap[startingAddress + LENGTH_PREFIX + i] = stringBytes[i];
+        }
+
+        // pointer set to the next empty space on the heap
+        virtualMachine.setHeapPointer(startingAddress + totalBytes);
+        // starting address pushed to stack
+        virtualMachine.getStack().push(startingAddress);
     }
 }

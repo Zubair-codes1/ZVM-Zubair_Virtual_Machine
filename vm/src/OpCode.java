@@ -55,8 +55,8 @@ public enum OpCode {
     LOAD_LOCAL(0x52, OpCodeCategory.MEMORY, ScopeCategory.LOCAL),
     STORE_LOCAL(0x53, OpCodeCategory.MEMORY, ScopeCategory.LOCAL),
     ALLOC(0x54, OpCodeCategory.MEMORY, ScopeCategory.GLOBAL),
-    STORE_HEAP(0x55, OpCodeCategory.MEMORY, ScopeCategory.GLOBAL),
-    LOAD_HEAP(0x56, OpCodeCategory.MEMORY, ScopeCategory.LOCAL),
+    LOAD_HEAP(0x55, OpCodeCategory.MEMORY, ScopeCategory.GLOBAL),
+    STORE_HEAP(0x56, OpCodeCategory.MEMORY, ScopeCategory.GLOBAL),
 
     // I/O
     PRINT(0x60, OpCodeCategory.IO, ScopeCategory.GLOBAL),
