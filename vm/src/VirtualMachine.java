@@ -15,6 +15,8 @@ public class VirtualMachine {
     private int programCounter;
     private Stack<Integer> programStack;
     private Stack<Frame> callStack;
+    private byte[] heap;
+    private int heapPointer;
     private ArrayList<String> programStorage;
     private ArrayList<Instruction> executableInstructions;
     private Map<String, Integer> labels;
