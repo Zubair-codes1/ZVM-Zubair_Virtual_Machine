@@ -10,6 +10,7 @@ public enum TokenType {
     LABEL_REFERENCE,    // label reference
     IDENTIFIER,         // identifier - such as variable names
     STRING,             // string tokens - wrapped in double quotes
-    BREAKPOINT,         // Debugger breakpoint
+    BREAKPOINT_START,   // Debugger breakpoint start
+    BREAKPOINT_END,     // Debugger breakpoint end
     UNKNOWN             // Unknown token type
 }
