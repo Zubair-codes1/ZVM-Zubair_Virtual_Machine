@@ -25,11 +25,12 @@ public class VirtualMachine {
     private ArrayList<String> constantPool;
     private final Map<String, OpCode> opCodeMapper;
     private boolean isRunning;
+    private boolean isDebugging;
 
     /**
      * Virtual machine constructor
      */
-    public VirtualMachine() {
+    public VirtualMachine(boolean isDebugging) {
         this.programCounter = 0;
         this.programStack = new Stack<>();
         this.callStack = new Stack<>();
@@ -46,6 +47,7 @@ public class VirtualMachine {
         setOpCodeMapper();
 
         this.isRunning = true;
+        this.isDebugging = isDebugging;
     }
 
     /**
@@ -136,6 +138,7 @@ public class VirtualMachine {
         LoadedProgram program = loader.loadProgram(filePath);
         this.executableInstructions = program.instructions();
         this.constantPool = new ArrayList<>(program.constantPool());
+
     }
 
     /**
@@ -205,6 +208,10 @@ public class VirtualMachine {
                 }
 
                 executeOneStep(instruction);
+                if (isDebugging) {
+                    debug(instruction);
+                }
+
                 programCounter++;
             }
         } catch (VirtualMachineException e) {
@@ -354,6 +361,10 @@ public class VirtualMachine {
                 " (inside :" + getFunctionName(programCounter) + ")");
 
         // 2. Walk back through the return stack
+        functionStackLoop();
+    }
+
+    private void functionStackLoop() {
         for (int i = callStack.size() - 1; i >= 0; i--) {
             Frame frame = callStack.get(i);
             int returnAddress = frame.getReturnAddress();
@@ -363,6 +374,36 @@ public class VirtualMachine {
             System.err.println("  at line " + callInstr.lineNumber() +
                     " (inside :" + getFunctionName(callAddr) + ")");
         }
+    }
+
+    private void debug(Instruction instruction) {
+        System.out.println("------------DEBUGGER------------");
+        System.out.print("Program Stack (Top to Bottom): ");
+        for  (int i = programStack.size() - 1; i >= 0; i--) {
+            System.out.print(programStack.get(i) + " ");
+        }
+
+        System.out.println();
+        System.out.print("Global Variables: ");
+        for (String key : globalVariables.keySet()) {
+            System.out.print("(" + key + ", " +  globalVariables.get(key) + ") ");
+        }
+
+        System.out.println();
+        System.out.println("Call Stack (Top to Bottom): ");
+        functionStackLoop();
+
+        System.out.println("-------------DEBUGGER------------");
+
+        System.out.print("Continue to next instruction (Y/N): ");
+        Scanner input = new Scanner(System.in);
+        String continueTo = input.next().toLowerCase();
+        if (continueTo.equalsIgnoreCase("N")) {
+            this.isRunning = false;
+
+        }
+
+
     }
 
     /**
