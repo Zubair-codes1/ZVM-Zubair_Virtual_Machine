@@ -14,7 +14,7 @@ years there has been an increase in malware designed to bypass them).
 
 The ZVM is a custom-built stack-based virtual machine that is turing complete and comes with a
 complete toolchain. This includes a custom ISA (Instruction Set Architecture), an assembler (along with a custom bytecode), 
-a virtual machine to run the programs and a global heap to store dynamic memory such as strings. Programs can either be run through binary or through
+a virtual machine to run the programs, a global heap to store dynamic memory such as strings and the Zebugger (Debugger). Programs can either be run through binary or through
 the .asm files straight away. The ZVM has its own Fetch-Decode-Execute (FDE) cycle along with a program stack
 to manage its memory. It also uses a program counter (typical of CPUs) to keep track of lines allowing for both sequential
 and non-sequential (functions/recursion/loops) programs to be run.
@@ -99,6 +99,7 @@ VirtualMachine/
  ┌───────────────┐
  │  ZVM Engine   │ ──► Dual Memory: [ Call Stack Frames ] (Local Variables)
  │   (Runtime)   │                  [ Global Byte Heap ] (Dynamic Strings)
+ │               │ ──► Debugger (Accessed using --debug command when runnign vm.jar)  
  └───────────────┘
 ```
 
@@ -114,6 +115,16 @@ to encode the instructions in binary using hex values. You can find the link to 
 [ISA Documentation](docs/ISA.md)  
 [Bytecode Format](docs/BYTECODE.md)
 
+## **Zebugger**
+
+The Zebugger (debugger) is one part of the ZVM's toolchain. Using a simple --debug command
+after the command to run the binary program, allows for the debugger to be activated. The debugger
+allows for the contents of the stack, global variables and the function call stack to be read at every
+instruction. The user has the option to stop the program completely by typing N or n (representing No)
+to stop the program completely and stop the debugger. This opportunity is given after every instruction is debugged.
+The Zebugger is still in the works with plans to add specific BREAKPOINT opcodes so that users can manually control
+which lines of the assembly are actually debugged.
+
 ## **Assembling Programs**
 
 ```
@@ -124,6 +135,12 @@ java -jar assembler.jar <input.asm> -o <output.bin>
 
 ```
 java -jar vm.jar <program.bin>
+```
+
+## **Debugging Binary Programs**
+
+```
+java -jar vm.jar <program.bin> --debug
 ```
 
 ## **Example Programs**
