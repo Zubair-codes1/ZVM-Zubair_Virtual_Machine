@@ -15,6 +15,8 @@ public class Main {
         }
 
         VirtualMachine vm;
+
+        // checking for debug command
         if (args.length == 2 || args[0].equals("--debug")) {
             vm = new VirtualMachine(true);
         }else {

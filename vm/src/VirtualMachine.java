@@ -364,6 +364,9 @@ public class VirtualMachine {
         functionStackLoop();
     }
 
+    /**
+     * Gets values on the function stack and displays them.
+     */
     private void functionStackLoop() {
         for (int i = callStack.size() - 1; i >= 0; i--) {
             Frame frame = callStack.get(i);
@@ -376,8 +379,13 @@ public class VirtualMachine {
         }
     }
 
+    /**
+     * Called after every function for debugging
+     * @param instruction the current instruction
+     */
     private void debug(Instruction instruction) {
         System.out.println("------------DEBUGGER------------");
+        System.out.println("Instruction Line Number: " + instruction.lineNumber());
         System.out.print("Program Stack (Top to Bottom): ");
         for  (int i = programStack.size() - 1; i >= 0; i--) {
             System.out.print(programStack.get(i) + " ");
