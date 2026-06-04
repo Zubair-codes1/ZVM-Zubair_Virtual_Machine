@@ -1,0 +1,30 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.Zubair</groupId>
+        <artifactId>virtual-machine</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>vm</artifactId>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>tests</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <finalName>vm</finalName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -75,8 +75,6 @@ VirtualMachine/
 ├── docs/
 │   ├── ISA.md
 │   └── BYTECODE.md
-├── assembler.jar
-├── vm.jar
 ├── .gitignore
 └── README.md
 ```
@@ -125,16 +123,23 @@ to stop the program completely and stop the debugger. This opportunity is given 
 The Zebugger is still in the works with plans to add specific BREAKPOINT opcodes so that users can manually control
 which lines of the assembly are actually debugged.
 
+## **Building The Project**
+
+```
+mvn package
+mvn test
+```
+
 ## **Assembling Programs**
 
 ```
-java -jar assembler.jar <input.asm> -o <output.bin>
+java -jar assembler/target/assembler.jar <input.asm> -o <output.bin>
 ```
 
 ## **Running Binary Programs**
 
 ```
-java -jar vm.jar <program.bin>
+java -jar vm/target/vm.jar <program.bin>
 ```
 
 ## **Debugging Binary Programs**
@@ -178,8 +183,8 @@ RET
 **Assemble And Run**
 
 ```
-java -jar assembler.jar programs/factorial.asm -o output/factorial.bin
-java -jar vm.jar output/factorial.bin
+java -jar assembler/target/assembler.jar programs/factorial.asm -o output/factorial.bin
+java -jar vm/target/vm.jar output/factorial.bin
 ```
 
 **Expected Output**
@@ -228,8 +233,8 @@ HALT
 **Assemble And Run**
 
 ```
-java -jar assembler.jar programs/dynamic_strings.asm -o output/dynamic_strings.bin
-java -jar vm.jar output/dynamic_strings.bin
+java -jar assembler/target/assembler.jar programs/dynamic_strings.asm -o output/dynamic_strings.bin
+java -jar vm/target/vm.jar output/dynamic_strings.bin
 ```
 
 
@@ -283,8 +288,8 @@ RET
 **Assemble And Run**
 
 ```
-java -jar assembler.jar programs/fibonacci.asm -o output/fibonacci.bin
-java -jar vm.jar output/fibonacci.bin
+java -jar assembler/target/assembler.jar programs/fibonacci.asm -o output/fibonacci.bin
+java -jar vm/target/vm.jar output/fibonacci.bin
 ```
 
 **Expected Output**
@@ -330,4 +335,5 @@ holding its local variables and return address. This makes recursion work natura
 (each call is fully isolated) and lets me design LOCAL instructions that always target
 the active frame without any ambiguity.
 4. Why JAR files? JAR files makes running programs on the VM much easier without understanding
-the actual functionality of the VM and the assembler. This makes the project more accessible.
+the actual functionality of the VM and the assembler. This makes the project more accessible. I have used Maven
+to make building the system easier and then it can be ran through the JAR files.
