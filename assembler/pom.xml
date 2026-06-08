@@ -7,7 +7,7 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>assembler</artifactId>
+    <artifactId>vm</artifactId>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
@@ -22,7 +22,15 @@
                             <mainClass>Main</mainClass>
                         </manifest>
                     </archive>
-                    <finalName>assembler</finalName>
+                    <finalName>vm</finalName>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
         </plugins>
