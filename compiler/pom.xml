@@ -7,7 +7,7 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>assembler</artifactId>
+    <artifactId>compiler</artifactId>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
@@ -22,7 +22,7 @@
                             <mainClass>Main</mainClass>
                         </manifest>
                     </archive>
-                    <finalName>assembler</finalName>
+                    <finalName>compiler</finalName>
                 </configuration>
             </plugin>
             <plugin>

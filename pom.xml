@@ -9,6 +9,7 @@
     <modules>
         <module>assembler</module>
         <module>vm</module>
+        <module>compiler</module>
     </modules>
 
     <properties>
