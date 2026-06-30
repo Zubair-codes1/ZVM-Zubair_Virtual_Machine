@@ -2,6 +2,11 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Handles all the tests for the Lexer.
+ *
+ * @author Zubair Abdul Matin
+ */
 public class LexerTest {
 
     // tokens helper method
@@ -138,8 +143,39 @@ public class LexerTest {
     public void testStringLiterals() {
         List<Token> tokens = getTokens("\"hello world\"");
         assertEquals(2, tokens.size()); // string, EOF
-        assertEquals(TokenType.STRING, tokens.get(0).type());
-        assertEquals("hello world", tokens.get(0).tokenValue());
+        assertEquals(TokenType.STRING, tokens.getFirst().type());
+        assertEquals("hello world", tokens.getFirst().tokenValue());
+    }
+
+    @Test
+    public void testBooleanTrueLiteral() {
+        List<Token> tokens = getTokens("true");
+        assertEquals(2, tokens.size()); // TRUE, EOF
+        assertEquals(TokenType.TRUE, tokens.getFirst().type());
+    }
+
+    @Test
+    public void testBooleanFalseLiteral() {
+        List<Token> tokens = getTokens("false");
+        assertEquals(2, tokens.size()); // FALSE, EOF
+        assertEquals(TokenType.FALSE, tokens.getFirst().type());
+    }
+
+    @Test
+    public void testBooleansMixedWithIdentifiers() {
+        // makes sure similiar identifiers don't get mixed up with true or false
+        List<Token> tokens = getTokens("true trueValue false false_flag");
+        assertEquals(5, tokens.size()); // TRUE, IDENTIFIER, FALSE, IDENTIFIER, EOF
+
+        assertEquals(TokenType.TRUE, tokens.getFirst().type());
+
+        assertEquals(TokenType.IDENTIFIER, tokens.get(1).type());
+        assertEquals("trueValue", tokens.get(1).tokenValue());
+
+        assertEquals(TokenType.FALSE, tokens.get(2).type());
+
+        assertEquals(TokenType.IDENTIFIER, tokens.get(3).type());
+        assertEquals("false_flag", tokens.get(3).tokenValue());
     }
 
     // ==========================================

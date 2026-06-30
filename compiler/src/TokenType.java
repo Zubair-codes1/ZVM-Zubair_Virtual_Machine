@@ -15,6 +15,8 @@ public enum TokenType {
     RETURN,
     BREAK,
     PRINT,
+    TRUE,
+    FALSE,
 
     // identifiers
     IDENTIFIER,
@@ -22,7 +24,6 @@ public enum TokenType {
     // literals
     INT,
     STRING,
-    BOOLEAN,
 
     // math operators
     ASSIGNMENT,
