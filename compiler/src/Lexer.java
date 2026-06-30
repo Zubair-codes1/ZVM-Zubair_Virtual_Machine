@@ -10,6 +10,9 @@ public class Lexer {
     // singleton
     private static final Lexer INSTANCE = new Lexer();
 
+    // line number
+    private int lineNumber;
+
     // private constructor for singleton
     private Lexer() {}
 
@@ -22,35 +25,29 @@ public class Lexer {
     }
 
     /**
-     * Cleans the inputted line and then converts
+     * Cleans the inputted string file and then converts
      * it into a list of tokens
      *
      * @param input line inputted
-     * @param lineNumber current line number
      * @return list of tokens
      */
-    public List<Token> tokenize(String input, int lineNumber) {
-        // removing comments
-        int commentStartIndex = input.indexOf("//");
-        if (commentStartIndex != -1) {
-            input = input.substring(0, commentStartIndex);
-        }
-
-        // cleaning input and checking for empty line
-        String cleanedInput = input.strip();
-
-        if (cleanedInput.isEmpty()) {
+    public List<Token> tokenize(String input) {
+        if (input.isEmpty()) {
             return new ArrayList<>();
         }
 
         // getting the tokens
         List<Token> tokens = new ArrayList<>();
+        this.lineNumber = 1;
         int currentPointer = 0;
 
         // running loop to get tokens
-        while (currentPointer < cleanedInput.length()) {
-            currentPointer = scanToken(tokens, cleanedInput, lineNumber, currentPointer);
+        while (currentPointer < input.length()) {
+            currentPointer = scanToken(tokens, input, currentPointer);
         }
+
+        // adding End of File token after loop ends
+        tokens.add(new Token(TokenType.EOF, "EOF", lineNumber));
 
         return tokens;
     }
@@ -60,15 +57,14 @@ public class Lexer {
      *
      * @param tokens list of tokens
      * @param input the cleaned input that is being lexed
-     * @param lineNumber the current line number of the input line
      * @param currentPointer current pointer
      * @return current pointer
      */
-    private int scanToken(List<Token> tokens, String input, int lineNumber, int currentPointer) {
-        char c = input.charAt(currentPointer);
+    private int scanToken(List<Token> tokens, String input, int currentPointer) {
+        char currentChar = input.charAt(currentPointer);
         currentPointer += 1; // next character
 
-        switch (c) {
+        switch (currentChar) {
             case '(': tokens.add(new Token(TokenType.LEFT_PAREN, "(", lineNumber)); break;
             case ')': tokens.add(new Token(TokenType.RIGHT_PAREN, ")", lineNumber)); break;
             case '{': tokens.add(new Token(TokenType.LEFT_BRACE, "{", lineNumber)); break;
@@ -80,6 +76,10 @@ public class Lexer {
             case ' ': break;
             case '\r': break;
             case '\t': break;
+
+            case '\n':
+                lineNumber++;
+                break;
 
             // comparison operators
             case '=':
@@ -113,9 +113,20 @@ public class Lexer {
             case '+': tokens.add(new Token(TokenType.PLUS, "+", lineNumber)); break;
             case '-': tokens.add(new Token(TokenType.MINUS, "-", lineNumber)); break;
             case '*': tokens.add(new Token(TokenType.MULTIPLY, "*", lineNumber)); break;
-            case '/': tokens.add(new Token(TokenType.DIVIDE, "/", lineNumber)); break;
+            case '/':
+                // checking for comments first and skipping comment lines
+                if (match(input, '/', currentPointer)) {
+                    // It's a comment! Skip until the end of the line
+                    while (currentPointer < input.length() && input.charAt(currentPointer) != '\n') {
+                        currentPointer++;
+                    }
+                } else {
+                    tokens.add(new Token(TokenType.DIVIDE, "/", lineNumber)); //
+                }
+                break;
             case '%': tokens.add(new Token(TokenType.MODULO, "%", lineNumber)); break;
 
+            // logical and bitwise operations
             case '&':
                 if (match(input, '&', currentPointer)) {
                     tokens.add(new Token(TokenType.LOGICAL_AND, "&&", lineNumber));
@@ -144,10 +155,27 @@ public class Lexer {
                 break;
 
             case '~': tokens.add(new Token(TokenType.BITWISE_NOT, "~", lineNumber)); break;
+            case '^': tokens.add(new Token(TokenType.BITWISE_XOR, "^", lineNumber)); break;
+
+            // checking for string literals
+            case '"':
+                String stringValue = scanString(input, currentPointer);
+                currentPointer += stringValue.length();
+                tokens.add(new Token(TokenType.STRING, stringValue, lineNumber));
+                break;
 
             // check for other opcodes
             default:
+                if (Character.isDigit(currentChar)) {
+                    String result = scanNumber(input, currentPointer, currentChar);
+                    tokens.add(new Token(TokenType.INT, result, lineNumber));
+                    currentPointer += result.length();
+                } else if (Character.isLetter(currentChar) || currentChar == '_') {
+                    currentPointer += scanIdentifierOrKeyword(tokens, input, currentPointer, currentChar);
 
+                } else {
+                    tokens.add(new Token(TokenType.ERROR, String.valueOf(currentChar), lineNumber));
+                }
                 break;
         }
 
@@ -164,6 +192,108 @@ public class Lexer {
      * @return true if they match, false otherwise
      */
     private boolean match(String input, char expected, int currentPointer) {
+        if (currentPointer >= input.length()) {
+            return false;
+        }
         return input.charAt(currentPointer) == expected;
     }
+
+    /**
+     * Scans a string starting from the first element after "
+     * and loops through the input until another " is found or
+     * the input is exhausted. Returns the full string within the two
+     * quotation marks.
+     * @param input input line
+     * @param currentPointer current pointer
+     * @return the string of numbers within the quotation mark
+     */
+    private String scanString(String input, int currentPointer) {
+        StringBuilder result = new StringBuilder();
+        while (currentPointer < input.length()) {
+            if (match(input, '"', currentPointer)) {
+                break;
+            }
+
+            result.append(input.charAt(currentPointer));
+            currentPointer += 1;
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * Scans a number until a space is found or the next
+     * character is no longer a digit. Whilst doing so it collects
+     * the numbers into a full string and passes that as the value for the token
+     * and uses the length of the string to adjust the current pointer
+     *
+     * @param input input
+     * @param currentPointer current pointer
+     * @param currentChar the current character (also needs to be included in the token)
+     *
+     * @return a number as a string
+     */
+    private String scanNumber(String input, int currentPointer, char currentChar) {
+        StringBuilder numberString =  new StringBuilder();
+        numberString.append(currentChar);
+        while (currentPointer < input.length()) {
+            if (match(input, ' ', currentPointer)) {
+                break;
+            }
+
+            if (Character.isDigit(input.charAt(currentPointer))) {
+                numberString.append(input.charAt(currentPointer));
+                currentPointer += 1;
+            }else {
+                break;
+            }
+
+        }
+
+        return numberString.toString();
+    }
+
+    /**
+     * Scans a string of characters to check whether it is
+     * a built-in keyword or if it is an identifier and returns
+     * the length of that keyword or identifier
+     *
+     * @param tokens list of tokens
+     * @param input input line
+     * @param currentPointer current pointer
+     * @param currentChar current char (needs to be included in the token as well)
+     *
+     * @return length of the keyword or identifier that has been tokenized
+     */
+    private int scanIdentifierOrKeyword(List<Token> tokens, String input, int currentPointer, char currentChar) {
+        StringBuilder result = new StringBuilder();
+        result.append(currentChar);
+        while (currentPointer < input.length()) {
+            if (match(input, ' ', currentPointer)) {
+                break;
+            }
+
+            result.append(input.charAt(currentPointer));
+            currentPointer += 1;
+        }
+
+        String stringResult = result.toString();
+        if (!stringResult.isEmpty()) {
+            switch (stringResult) {
+                case "if": tokens.add(new Token(TokenType.IF, stringResult, lineNumber)); break;
+                case "else": tokens.add(new Token(TokenType.ELSE, stringResult, lineNumber)); break;
+                case "while": tokens.add(new Token(TokenType.WHILE, stringResult, lineNumber)); break;
+                case "for": tokens.add(new Token(TokenType.FOR, stringResult, lineNumber)); break;
+                case "def": tokens.add(new Token(TokenType.DEF, stringResult, lineNumber)); break;
+                case "return": tokens.add(new Token(TokenType.RETURN, stringResult, lineNumber)); break;
+                case "break": tokens.add(new Token(TokenType.BREAK, stringResult, lineNumber)); break;
+                case "print": tokens.add(new Token(TokenType.PRINT, stringResult, lineNumber)); break;
+                default: tokens.add(new Token(TokenType.IDENTIFIER, stringResult, lineNumber));
+            }
+        }
+
+        return stringResult.length();
+
+    }
+
 }
