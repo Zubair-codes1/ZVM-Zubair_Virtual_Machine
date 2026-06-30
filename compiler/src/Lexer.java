@@ -160,19 +160,23 @@ public class Lexer {
             // checking for string literals
             case '"':
                 String stringValue = scanString(input, currentPointer);
-                currentPointer += stringValue.length();
-                tokens.add(new Token(TokenType.STRING, stringValue, lineNumber));
+
+                // checks if the string literal is ever closed
+                if (currentPointer + stringValue.length() >= input.length()) {
+                    tokens.add(new Token(TokenType.ERROR, "Unterminated string literal", lineNumber));
+                    currentPointer = input.length(); // Jumps to end
+                } else {
+                    currentPointer += stringValue.length() + 1;
+                    tokens.add(new Token(TokenType.STRING, stringValue, lineNumber));
+                }
                 break;
 
             // check for other opcodes
             default:
                 if (Character.isDigit(currentChar)) {
-                    String result = scanNumber(input, currentPointer, currentChar);
-                    tokens.add(new Token(TokenType.INT, result, lineNumber));
-                    currentPointer += result.length();
+                    currentPointer = scanNumber(tokens, input, currentPointer, currentChar);
                 } else if (Character.isLetter(currentChar) || currentChar == '_') {
-                    currentPointer += scanIdentifierOrKeyword(tokens, input, currentPointer, currentChar);
-
+                    currentPointer = scanIdentifierOrKeyword(tokens, input, currentPointer, currentChar);
                 } else {
                     tokens.add(new Token(TokenType.ERROR, String.valueOf(currentChar), lineNumber));
                 }
@@ -227,20 +231,17 @@ public class Lexer {
      * the numbers into a full string and passes that as the value for the token
      * and uses the length of the string to adjust the current pointer
      *
+     * @param tokens list of tokens
      * @param input input
      * @param currentPointer current pointer
      * @param currentChar the current character (also needs to be included in the token)
      *
-     * @return a number as a string
+     * @return current pointer
      */
-    private String scanNumber(String input, int currentPointer, char currentChar) {
+    private int scanNumber(List<Token> tokens, String input, int currentPointer, char currentChar) {
         StringBuilder numberString =  new StringBuilder();
         numberString.append(currentChar);
         while (currentPointer < input.length()) {
-            if (match(input, ' ', currentPointer)) {
-                break;
-            }
-
             if (Character.isDigit(input.charAt(currentPointer))) {
                 numberString.append(input.charAt(currentPointer));
                 currentPointer += 1;
@@ -250,7 +251,10 @@ public class Lexer {
 
         }
 
-        return numberString.toString();
+        String number = numberString.toString();
+        tokens.add(new Token(TokenType.INT, number, lineNumber));
+
+        return currentPointer;
     }
 
     /**
@@ -269,12 +273,12 @@ public class Lexer {
         StringBuilder result = new StringBuilder();
         result.append(currentChar);
         while (currentPointer < input.length()) {
-            if (match(input, ' ', currentPointer)) {
+            if (Character.isLetterOrDigit(input.charAt(currentPointer)) ||  input.charAt(currentPointer) == '_') {
+                result.append(input.charAt(currentPointer));
+                currentPointer += 1;
+            }else {
                 break;
             }
-
-            result.append(input.charAt(currentPointer));
-            currentPointer += 1;
         }
 
         String stringResult = result.toString();
@@ -292,7 +296,7 @@ public class Lexer {
             }
         }
 
-        return stringResult.length();
+        return currentPointer;
 
     }
 
