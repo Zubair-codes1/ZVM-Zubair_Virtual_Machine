@@ -7,6 +7,7 @@ package zplusplus.ast;
  * @author Zubair Abdul Matin
  */
 public class LiteralExpression extends Expression {
+    // holds either an integer, boolean or string
     private final Object value;
 
     /**

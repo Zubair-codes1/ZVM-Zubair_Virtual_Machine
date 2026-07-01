@@ -8,6 +8,11 @@ package zplusplus.ast;
  */
 public abstract class Expression extends ASTNode {
 
+    /**
+     * Constructor for expression class,
+     * concrete expresssions inherit from this
+     * @param lineNumber line number of expression node
+     */
     protected Expression(int lineNumber) {
         super(lineNumber);
     }

@@ -1,11 +1,14 @@
 package zplusplus.ast;
 
 /**
- * Concrete class to handle all variable expressions
+ * Concrete class to handle all variable expressions,
+ * holds the name of the variable for a specific variable
+ * expression node
  *
  * @author Zubair Abdul Matin
  */
 public class VariableExpression extends Expression {
+    // name of the variable
     private final String name;
 
     /**

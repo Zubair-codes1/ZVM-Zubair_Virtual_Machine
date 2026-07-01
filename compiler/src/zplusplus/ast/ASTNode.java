@@ -9,6 +9,11 @@ public abstract class ASTNode {
 
     private final int lineNumber;
 
+    /**
+     * Constructor to make an AST node,
+     * only accessible by the subclasses
+     * @param lineNumber line number of the node
+     */
     protected ASTNode(int lineNumber) {
         this.lineNumber = lineNumber;
     }

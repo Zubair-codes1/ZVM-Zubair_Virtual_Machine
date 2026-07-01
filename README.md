@@ -54,7 +54,7 @@ VirtualMachine/
 │   │   ├── IOHandler.java
 │   │   ├── LoadedProgram.java
 │   │   ├── LogicHandler.java
-│   │   ├── zplusplus.Main.java
+│   │   ├── Main.java
 │   │   ├── MathHandler.java
 │   │   ├── MemoryHandler.java
 │   │   ├── OpCode.java
