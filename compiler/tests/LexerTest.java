@@ -1,9 +1,13 @@
 import org.junit.jupiter.api.Test;
+import zplusplus.lexer.Lexer;
+import zplusplus.lexer.Token;
+import zplusplus.lexer.TokenType;
+
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Handles all the tests for the Lexer.
+ * Handles all the tests for the zplusplus.lexer.Lexer.
  *
  * @author Zubair Abdul Matin
  */

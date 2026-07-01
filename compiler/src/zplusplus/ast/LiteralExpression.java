@@ -1,5 +1,7 @@
+package zplusplus.ast;
+
 /**
- * Expression class for literals such as strings, integers
+ * zplusplus.ast.Expression class for literals such as strings, integers
  * and booleans.
  *
  * @author Zubair Abdul Matin

@@ -1,3 +1,5 @@
+package zplusplus.lexer;
+
 /**
  * Types of tokens that the compiler uses to break down ZLang
  * lines into. Includes all built ins, identifiers, literals,

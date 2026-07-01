@@ -1,3 +1,5 @@
+package zplusplus.lexer;
+
 /**
  * Holds information about each token such as token type,
  * the token value (actual string value) and its line number.

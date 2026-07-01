@@ -1,3 +1,5 @@
+package zplusplus.exceptions;
+
 /**
  * Class to handle all compiler exceptions
  *

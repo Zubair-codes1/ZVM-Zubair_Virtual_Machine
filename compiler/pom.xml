@@ -19,7 +19,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>Main</mainClass>
+                            <mainClass>zplusplus.Main</mainClass>
                         </manifest>
                     </archive>
                     <finalName>compiler</finalName>

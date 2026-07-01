@@ -1,3 +1,5 @@
+package zplusplus.ast;
+
 /**
  * Concrete class to handle all variable expressions
  *

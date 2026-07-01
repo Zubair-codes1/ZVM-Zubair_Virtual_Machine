@@ -1,7 +1,9 @@
+package zplusplus.lexer;
+
 import java.util.*;
 
 /**
- * Lexer breaks down the program into a list of tokens.
+ * zplusplus.lexer.Lexer breaks down the program into a list of tokens.
  *
  * @author Zubair Abdul Matin
  */
@@ -18,7 +20,7 @@ public class Lexer {
 
     /**
      * Gets lexer singlton
-     * @return Lexer singlton
+     * @return zplusplus.lexer.Lexer singlton
      */
     public static Lexer getInstance() {
         return INSTANCE;
