@@ -26,6 +26,7 @@ public class BlockStatement extends Statement {
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
         for (Statement statement : statements) {
+            sb.append("\t");
             sb.append(statement.toString());
             sb.append("\n");
         }
