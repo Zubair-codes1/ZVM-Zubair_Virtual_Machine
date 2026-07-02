@@ -1,5 +1,9 @@
 package zplusplus.ast;
 
+/**
+ * Class for while statement node,
+ * includes the condition and the body of the while statement
+ */
 public class WhileStatement extends Statement {
 
     public final Expression condition;
