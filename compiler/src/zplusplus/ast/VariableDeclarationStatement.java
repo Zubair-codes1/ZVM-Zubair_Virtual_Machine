@@ -9,12 +9,14 @@ public class VariableDeclarationStatement extends Statement {
 
     private final String typeName;
     private final String varName;
+    private final Expression initializer;
 
-    public VariableDeclarationStatement(String typeName, String varName, int lineNumber) {
+    public VariableDeclarationStatement(String typeName, String varName, Expression initializer, int lineNumber) {
         super(lineNumber);
 
         this.typeName = typeName;
         this.varName = varName;
+        this.initializer = initializer;
     }
 
     public String getTypeName() {
@@ -25,8 +27,15 @@ public class VariableDeclarationStatement extends Statement {
         return varName;
     }
 
+    public Expression getInitializer() {
+        return initializer;
+    }
+
     @Override
     public String toString() {
+        if (initializer != null) {
+            return typeName + " " + varName + " = " + initializer.toString();
+        }
         return typeName + " " + varName + ";";
     }
 }
