@@ -1,5 +1,10 @@
 package zplusplus.ast;
 
+/**
+ * Class to handle assignments
+ *
+ * @author Zubair Abdul Matin
+ */
 public class AssignmentStatement extends Statement {
 
     private final String name;  // name of variable
