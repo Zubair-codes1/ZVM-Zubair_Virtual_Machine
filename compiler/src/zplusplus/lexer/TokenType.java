@@ -23,6 +23,11 @@ public enum TokenType {
     // identifiers
     IDENTIFIER,
 
+    // data types
+    STRING_TYPE,
+    INT_TYPE,
+    BOOLEAN_TYPE,
+
     // literals
     INT,
     STRING,
