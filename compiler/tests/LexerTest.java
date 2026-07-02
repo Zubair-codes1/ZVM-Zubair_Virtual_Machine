@@ -183,6 +183,51 @@ public class LexerTest {
     }
 
     // ==========================================
+    // 6. DATA TYPES
+    // ==========================================
+
+    @Test
+    public void testDataTypeKeywords() {
+        List<Token> tokens = getTokens("int string bool");
+        assertEquals(4, tokens.size()); // INT, STRING_TYPE, BOOL, EOF
+
+        assertEquals(TokenType.INT_TYPE, tokens.getFirst().type());
+        assertEquals(TokenType.STRING_TYPE, tokens.get(1).type());
+        assertEquals(TokenType.BOOLEAN_TYPE, tokens.get(2).type());
+    }
+
+    @Test
+    public void testTypeKeywordsAsVariablePrefixes() {
+        List<Token> tokens = getTokens("interval stringVar booleanValue");
+        assertEquals(4, tokens.size()); // IDENTIFIER, IDENTIFIER, IDENTIFIER, EOF
+
+        assertEquals(TokenType.IDENTIFIER, tokens.get(0).type());
+        assertEquals("interval", tokens.get(0).tokenValue());
+
+        assertEquals(TokenType.IDENTIFIER, tokens.get(1).type());
+        assertEquals("stringVar", tokens.get(1).tokenValue());
+
+        assertEquals(TokenType.IDENTIFIER, tokens.get(2).type());
+        assertEquals("booleanValue", tokens.get(2).tokenValue());
+    }
+
+    @Test
+    public void testVariableDeclarationLine() {
+        // A mini integration test simulating a full declaration line
+        List<Token> tokens = getTokens("int score = 100;");
+        assertEquals(6, tokens.size()); // INT, IDENTIFIER, EQUAL, NUMBER, SEMICOLON, EOF
+
+        assertEquals(TokenType.INT_TYPE, tokens.get(0).type());
+
+        assertEquals(TokenType.IDENTIFIER, tokens.get(1).type());
+        assertEquals("score", tokens.get(1).tokenValue());
+
+        assertEquals(TokenType.ASSIGNMENT, tokens.get(2).type());
+        assertEquals(TokenType.INT, tokens.get(3).type());
+        assertEquals(TokenType.SEMICOLON, tokens.get(4).type());
+    }
+
+    // ==========================================
     // 6. WHITESPACE, COMMENTS & BOUNDARIES
     // ==========================================
 
