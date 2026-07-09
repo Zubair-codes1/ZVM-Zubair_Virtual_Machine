@@ -83,20 +83,51 @@ public class Parser {
         return match(tokenTypes);
     }
 
-    /* Expression engine */
+    /*
+        ------------------------
+        Expression engine
+        -----------------------
+    */
 
     // kicks off the expression engine
     private Expression expression() {
-        return term();
+        return termOperate();
+    }
+
+    // handles assignement (least precedence)
+    private Expression assignement() {
+
+        return null;
+    }
+
+    // handles logical Or
+    private Expression logicalOr() {
+        return null;
+    }
+
+    // handles logical and
+    private Expression logicalAnd() {
+        return null;
+    }
+
+    // handles equality (==)
+    private Expression equality() {
+        return null;
+    }
+
+    // handles comparison operators (>, >=, <, <=)
+    private Expression comparison() {
+
+        return null;
     }
 
     // addition and subtraction
-    private Expression term() {
-        Expression expression = factor();
+    private Expression termOperate() {
+        Expression expression = factorOperate();
 
         while (tokens.get(parserCounter).type() == TokenType.PLUS || tokens.get(parserCounter).type() == TokenType.MINUS) {
             Token termOperator = tokens.get(parserCounter++);
-            Expression rightExpression = factor();
+            Expression rightExpression = factorOperate();
 
             expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
         }
@@ -105,7 +136,7 @@ public class Parser {
     }
 
     // other math operators
-    private Expression factor() {
+    private Expression factorOperate() {
         Expression expression;
         expression = primary();
 
@@ -120,6 +151,12 @@ public class Parser {
         }
 
         return expression;
+    }
+
+    // handles unary operators (higher precedence than binary operators)
+    private Expression unary() {
+
+        return null;
     }
 
     // handles literals, identifier and groups surrounded by parentheses
