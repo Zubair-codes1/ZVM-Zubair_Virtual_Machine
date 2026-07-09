@@ -107,7 +107,16 @@ public class Parser {
 
     // handles logical and
     private Expression logicalAnd() {
-        return null;
+        Expression expression = equality();
+
+        while (tokens.get(parserCounter).type() == TokenType.LOGICAL_AND) {
+            Token termOperator = tokens.get(parserCounter++);
+            Expression rightExpression = equality();
+
+            expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
+        }
+
+        return expression;
     }
 
     // handles equality (==)
@@ -116,7 +125,7 @@ public class Parser {
 
         while (tokens.get(parserCounter).type() == TokenType.EQUAL_EQUAL || tokens.get(parserCounter).type() == TokenType.NOT_EQUAL) {
             Token termOperator = tokens.get(parserCounter++);
-            Expression rightExpression = factorOperate();
+            Expression rightExpression = comparison();
 
             expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
         }
@@ -135,7 +144,7 @@ public class Parser {
                 tokens.get(parserCounter).type() == TokenType.LESS_OR_EQUAL
         ) {
             Token termOperator = tokens.get(parserCounter++);
-            Expression rightExpression = factorOperate();
+            Expression rightExpression = termOperate();
 
             expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
         }
@@ -160,7 +169,7 @@ public class Parser {
     // other math operators
     private Expression factorOperate() {
         Expression expression;
-        expression = primary();
+        expression = unary();
 
         while (tokens.get(parserCounter).type() == TokenType.MULTIPLY ||
             tokens.get(parserCounter).type() == TokenType.DIVIDE ||
