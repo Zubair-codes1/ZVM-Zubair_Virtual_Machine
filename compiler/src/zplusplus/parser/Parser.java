@@ -83,6 +83,23 @@ public class Parser {
         return match(tokenTypes);
     }
 
+    /* Expression engine */
+
+    // addition and subtraction
+    private void term() {
+
+    }
+
+    // other math operators
+    private void factor() {
+
+    }
+
+    // number values
+    private void primary() {
+
+    }
+
     private void handleFuncDeclaration() {}
 
     private void handleVarDeclaration() {}
