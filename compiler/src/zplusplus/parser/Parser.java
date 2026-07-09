@@ -86,15 +86,33 @@ public class Parser {
     /* Expression engine */
 
     // addition and subtraction
-    private Expression term(Token token) {
-        Expression expression = factor(token);
+    private Expression term() {
+        Expression expression = factor();
+
+        while (tokens.get(parserCounter).type() == TokenType.PLUS || tokens.get(parserCounter).type() == TokenType.MINUS) {
+            Token termOperator = tokens.get(parserCounter++);
+            Expression rightExpression = factor();
+
+            expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
+        }
 
         return expression;
     }
 
     // other math operators
-    private Expression factor(Token token) {
-        Expression expression = primary(token);
+    private Expression factor() {
+        Expression expression;
+        expression = primary(tokens.get(parserCounter++));
+
+        while (tokens.get(parserCounter).type() == TokenType.MULTIPLY ||
+            tokens.get(parserCounter).type() == TokenType.DIVIDE ||
+            tokens.get(parserCounter).type() == TokenType.MODULO
+        ) {
+            Token factorOperator = tokens.get(parserCounter++);
+            Expression rightExpression = primary(tokens.get(parserCounter++));
+
+            expression = new BinaryExpression(expression, factorOperator, rightExpression, expression.getLineNumber());
+        }
 
         return expression;
     }
