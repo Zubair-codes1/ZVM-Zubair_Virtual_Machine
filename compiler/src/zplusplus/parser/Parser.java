@@ -86,17 +86,17 @@ public class Parser {
     /* Expression engine */
 
     // addition and subtraction
-    private void term() {
-
+    private void term(Token token) {
+        factor(token);
     }
 
     // other math operators
-    private void factor() {
-
+    private void factor(Token token) {
+        primary(token);
     }
 
     // number values
-    private void primary() {
+    private void primary(Token token) {
 
     }
 
