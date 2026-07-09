@@ -86,18 +86,22 @@ public class Parser {
     /* Expression engine */
 
     // addition and subtraction
-    private void term(Token token) {
-        factor(token);
+    private Expression term(Token token) {
+        Expression expression = factor(token);
+
+        return expression;
     }
 
     // other math operators
-    private void factor(Token token) {
-        primary(token);
+    private Expression factor(Token token) {
+        Expression expression = primary(token);
+
+        return expression;
     }
 
     // number values
-    private void primary(Token token) {
-
+    private Expression primary(Token token) {
+        return new LiteralExpression(token.tokenValue(), token.lineNumber());
     }
 
     private void handleFuncDeclaration() {}
