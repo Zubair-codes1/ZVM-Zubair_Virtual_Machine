@@ -52,6 +52,8 @@ public class Parser {
                     default -> handleOtherStatements();
                 }
 
+            } else {
+                handleOtherStatements();
             }
         }
 
@@ -91,13 +93,7 @@ public class Parser {
 
     // kicks off the expression engine
     private Expression expression() {
-        return termOperate();
-    }
-
-    // handles assignement (least precedence)
-    private Expression assignement() {
-
-        return null;
+        return logicalOr();
     }
 
     // handles logical Or
@@ -260,5 +256,44 @@ public class Parser {
 
     private void handleLeftBraceStatement() {}
 
-    private void handleOtherStatements() {}
+    private void handleOtherStatements() {
+        Token currentToken = tokens.get(parserCounter);
+
+        // 1. Check if we are looking at: IDENTIFIER '='
+        if (currentToken.type() == TokenType.IDENTIFIER &&
+                parserCounter + 1 < tokens.size() &&
+                tokens.get(parserCounter + 1).type() == TokenType.ASSIGNMENT) {
+
+            // 2. Grab the name of the variable
+            String varName = currentToken.tokenValue();
+
+            // 3. Skip past the IDENTIFIER and the '='
+            parserCounter += 2;
+
+            // 4. Call the top of your expression engine to get the value
+            Expression valueExpression = termOperate(); // Points directly to your math logic
+
+            // 5. Expect and consume the trailing semicolon ';'
+            if (tokens.get(parserCounter).type() == TokenType.SEMICOLON) {
+                parserCounter++;
+
+                // 6. Build your Assignment Statement and add it to your program list
+                Statement assignmentStmt = new AssignmentStatement(varName, valueExpression, currentToken.lineNumber());
+                // statements.add(assignmentStmt);
+                return;
+            } else {
+                throw new RuntimeException("Syntax Error: Expected ';' after assignment on line " + currentToken.lineNumber());
+            }
+        }
+
+        // FALLBACK: If it wasn't an assignment, treat it as a standalone expression statement
+        Expression expr = termOperate();
+        if (tokens.get(parserCounter).type() == TokenType.SEMICOLON) {
+            parserCounter++;
+            Statement exprStmt = new ExpressionStatement(expr, currentToken.lineNumber());
+            // statements.add(exprStmt);
+        } else {
+            throw new RuntimeException("Syntax Error: Expected ';' after expression on line " + currentToken.lineNumber());
+        }
+    }
 }
