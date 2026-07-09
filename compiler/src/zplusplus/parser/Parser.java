@@ -1,10 +1,10 @@
 package zplusplus.parser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import zplusplus.ast.*;
 import zplusplus.lexer.*;
+import zplusplus.exceptions.*;
 
 /**
  * Class for parsing input into an abstract syntax tree
@@ -85,6 +85,11 @@ public class Parser {
 
     /* Expression engine */
 
+    // kicks off the expression engine
+    private Expression expression() {
+        return term();
+    }
+
     // addition and subtraction
     private Expression term() {
         Expression expression = factor();
@@ -102,14 +107,14 @@ public class Parser {
     // other math operators
     private Expression factor() {
         Expression expression;
-        expression = primary(tokens.get(parserCounter++));
+        expression = primary();
 
         while (tokens.get(parserCounter).type() == TokenType.MULTIPLY ||
             tokens.get(parserCounter).type() == TokenType.DIVIDE ||
             tokens.get(parserCounter).type() == TokenType.MODULO
         ) {
             Token factorOperator = tokens.get(parserCounter++);
-            Expression rightExpression = primary(tokens.get(parserCounter++));
+            Expression rightExpression = primary();
 
             expression = new BinaryExpression(expression, factorOperator, rightExpression, expression.getLineNumber());
         }
@@ -117,9 +122,47 @@ public class Parser {
         return expression;
     }
 
-    // number values
-    private Expression primary(Token token) {
-        return new LiteralExpression(token.tokenValue(), token.lineNumber());
+    // handles literals, identifier and groups surrounded by parentheses
+    private Expression primary() {
+        Token token = tokens.get(parserCounter);
+
+        // handle int and string literals
+        if (token.type() == TokenType.INT || token.type() == TokenType.STRING) {
+            parserCounter++;
+            return new LiteralExpression(token.tokenValue(), token.lineNumber());
+        }
+
+        // handle booleans
+        if (token.type() == TokenType.TRUE ||  token.type() == TokenType.FALSE) {
+            parserCounter++;
+            boolean value = token.type() == TokenType.TRUE;
+            return new LiteralExpression(value, token.lineNumber());
+        }
+
+        // handle variables
+        if (token.type() == TokenType.IDENTIFIER) {
+            parserCounter++;
+
+            return new LiteralExpression(token.tokenValue(), token.lineNumber());
+        }
+
+        // grouping logic
+        if (token.type() == TokenType.LEFT_PAREN) {
+            parserCounter++;
+
+            // loop back and repeat the process for inner expression
+            Expression expression = expression();
+
+            if (tokens.get(parserCounter).type() == TokenType.RIGHT_PAREN) {
+                parserCounter++;
+                return expression; // inner expression
+            } else {
+                throw new CompilerException("Syntax error: Missing \")\" at the end of expression.");
+            }
+
+        }
+
+        throw new CompilerException("Syntax error: Unexpected token '" + token.tokenValue() + "' at line " +  token.lineNumber());
     }
 
     private void handleFuncDeclaration() {}
