@@ -102,7 +102,16 @@ public class Parser {
 
     // handles logical Or
     private Expression logicalOr() {
-        return null;
+        Expression expression = logicalAnd();
+
+        while (tokens.get(parserCounter).type() == TokenType.LOGICAL_AND) {
+            Token termOperator = tokens.get(parserCounter++);
+            Expression rightExpression = logicalAnd();
+
+            expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
+        }
+
+        return expression;
     }
 
     // handles logical and
