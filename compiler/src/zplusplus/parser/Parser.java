@@ -126,8 +126,21 @@ public class Parser {
 
     // handles comparison operators (>, >=, <, <=)
     private Expression comparison() {
+        Expression expression = termOperate();
 
-        return null;
+        while (
+                tokens.get(parserCounter).type() == TokenType.GREATER_THAN ||
+                tokens.get(parserCounter).type() == TokenType.GREATER_OR_EQUAL ||
+                tokens.get(parserCounter).type() == TokenType.LESS_THAN ||
+                tokens.get(parserCounter).type() == TokenType.LESS_OR_EQUAL
+        ) {
+            Token termOperator = tokens.get(parserCounter++);
+            Expression rightExpression = factorOperate();
+
+            expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
+        }
+
+        return expression;
     }
 
     // addition and subtraction
