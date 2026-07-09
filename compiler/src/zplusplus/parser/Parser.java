@@ -112,7 +112,16 @@ public class Parser {
 
     // handles equality (==)
     private Expression equality() {
-        return null;
+        Expression expression = comparison();
+
+        while (tokens.get(parserCounter).type() == TokenType.EQUAL_EQUAL || tokens.get(parserCounter).type() == TokenType.NOT_EQUAL) {
+            Token termOperator = tokens.get(parserCounter++);
+            Expression rightExpression = factorOperate();
+
+            expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
+        }
+
+        return expression;
     }
 
     // handles comparison operators (>, >=, <, <=)
