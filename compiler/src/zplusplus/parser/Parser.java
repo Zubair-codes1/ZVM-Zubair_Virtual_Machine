@@ -244,6 +244,12 @@ public class Parser {
         throw new CompilerException("Syntax error: Unexpected token '" + token.tokenValue() + "' at line " +  token.lineNumber());
     }
 
+    /*
+        ------------------------
+        Statement handlers
+        -----------------------
+    */
+
     /**
      * Checks for the current token to see if it is within range,
      * if not then returns EOF token
@@ -281,10 +287,23 @@ public class Parser {
         return tokens.get(parserCounter - 1);
     }
 
+    /**
+     * Checks the token type, if incorrect then throws a compiler error.
+     * @param type type that is checked
+     * @param errorMessage error message if type is incorrect
+     * @return token or error message
+     */
+    private Token consume(TokenType type, String errorMessage) {
+        if (peekToken().type() == type) {
+            return advance(); // Safe, valid, and moves us forward!
+        }
+        throw new CompilerException(errorMessage);
+    }
+
     private void handleFuncDeclaration() {}
 
     private Statement handleVarDeclaration() {
-        Token currentToken = tokens.get(parserCounter);
+        Token currentToken = advance();
 
         if (
                 currentToken.type() == TokenType.INT_TYPE ||
