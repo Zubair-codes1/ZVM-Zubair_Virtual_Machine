@@ -245,13 +245,25 @@ public class Parser {
     }
 
     /**
-     * Checks for the next token to see if it is within range,
+     * Checks for the current token to see if it is within range,
      * if not then returns EOF token
-     * @return token
+     * @return token or EOF
      */
     private Token peekToken() {
         if (parserCounter < tokens.size()) {
             return tokens.get(parserCounter);
+        }else {
+            return tokens.getLast();
+        }
+    }
+
+    /**
+     * Peeks at the next token to see if it within range
+     * @return token or EOF
+     */
+    private Token peekNextToken() {
+        if (parserCounter + 1 < tokens.size()) {
+            return tokens.get(parserCounter + 1);
         }else {
             return tokens.getLast();
         }
