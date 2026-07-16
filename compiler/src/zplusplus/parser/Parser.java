@@ -191,9 +191,13 @@ public class Parser {
 
     // handles unary operators (higher precedence than binary operators)
     private Expression unary() {
-        Expression expression = primary();
+        if (tokens.get(parserCounter).type() == TokenType.LOGICAL_NOT || tokens.get(parserCounter).type() == TokenType.MINUS) {
+            Token operator = tokens.get(parserCounter++);
+            Expression right = unary();
+            return new UnaryExpression(operator, right, operator.lineNumber());
+        }
 
-        return expression;
+        return primary();
     }
 
     // handles literals, identifier and groups surrounded by parentheses
