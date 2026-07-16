@@ -246,7 +246,45 @@ public class Parser {
 
     private void handleFuncDeclaration() {}
 
-    private void handleVarDeclaration() {}
+    private Statement handleVarDeclaration() {
+        Token currentToken = tokens.get(parserCounter);
+
+        if (
+                currentToken.type() == TokenType.INT_TYPE ||
+                currentToken.type() == TokenType.STRING_TYPE ||
+                currentToken.type() == TokenType.BOOLEAN_TYPE
+        ) {
+            parserCounter++;
+            String typeName = currentToken.tokenValue();
+
+            String varName;
+            if  (tokens.get(parserCounter).type() == TokenType.IDENTIFIER) {
+                Token varNameToken = tokens.get(parserCounter++);
+                varName = varNameToken.tokenValue();
+            }else {
+                throw new CompilerException("Syntax error: Expected a variable name after type at line " + currentToken.lineNumber());
+            }
+
+            Expression expression;
+            if (tokens.get(parserCounter).type() == TokenType.ASSIGNMENT) {
+                Token assignmentToken = tokens.get(parserCounter++);
+                expression = expression();
+            }else {
+                expression = null;
+            }
+
+            if (tokens.get(parserCounter).type() == TokenType.SEMICOLON) {
+                parserCounter++;
+            }else {
+                throw new CompilerException("Syntax error: Missing semicolon at the end of expression at " + currentToken.lineNumber());
+            }
+
+            return new VariableDeclarationStatement(typeName, varName, expression, currentToken.lineNumber());
+
+        }else {
+            throw new CompilerException("Syntax error: Unexpected token at " + currentToken.lineNumber());
+        }
+    }
 
     private void handleIfStatement() {}
 
