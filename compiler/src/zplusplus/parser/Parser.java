@@ -17,12 +17,10 @@ public class Parser {
 
     private int parserCounter;
     private List<Token> tokens;
-    private List<Statement> statements;
 
     public Parser() {
         parserCounter = 0;
         tokens = new ArrayList<>();
-        statements = new ArrayList<>();
     }
 
     public List<Statement> parse(String input) {
@@ -264,7 +262,7 @@ public class Parser {
 
     private void handleLeftBraceStatement() {}
 
-    private void handleOtherStatements() {
+    private Statement handleOtherStatements() {
         Token currentToken = tokens.get(parserCounter);
 
         // 1. Check if we are looking at: IDENTIFIER '='
@@ -286,9 +284,7 @@ public class Parser {
                 parserCounter++;
 
                 // 6. Build your Assignment Statement and add it to your program list
-                Statement assignmentStmt = new AssignmentStatement(varName, valueExpression, currentToken.lineNumber());
-                statements.add(assignmentStmt);
-                return;
+                return new AssignmentStatement(varName, valueExpression, currentToken.lineNumber());
             } else {
                 throw new RuntimeException("Syntax Error: Expected ';' after assignment on line " + currentToken.lineNumber());
             }
@@ -298,8 +294,7 @@ public class Parser {
         Expression expr = termOperate();
         if (tokens.get(parserCounter).type() == TokenType.SEMICOLON) {
             parserCounter++;
-            Statement exprStmt = new ExpressionStatement(expr, currentToken.lineNumber());
-            statements.add(exprStmt);
+            return new ExpressionStatement(expr, currentToken.lineNumber());
         } else {
             throw new RuntimeException("Syntax Error: Expected ';' after expression on line " + currentToken.lineNumber());
         }
