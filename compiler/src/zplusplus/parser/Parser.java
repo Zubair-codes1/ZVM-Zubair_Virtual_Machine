@@ -244,6 +244,19 @@ public class Parser {
         throw new CompilerException("Syntax error: Unexpected token '" + token.tokenValue() + "' at line " +  token.lineNumber());
     }
 
+    /**
+     * Checks for the next token to see if it is within range,
+     * if not then returns EOF token
+     * @return token
+     */
+    private Token peekToken() {
+        if (parserCounter < tokens.size()) {
+            return tokens.get(parserCounter);
+        }else {
+            return tokens.getLast();
+        }
+    }
+
     private void handleFuncDeclaration() {}
 
     private Statement handleVarDeclaration() {
