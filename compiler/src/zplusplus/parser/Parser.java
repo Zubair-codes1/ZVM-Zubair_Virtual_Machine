@@ -303,43 +303,26 @@ public class Parser {
     private void handleFuncDeclaration() {}
 
     private Statement handleVarDeclaration() {
-        Token currentToken = advance();
+        // type token
+        Token typeToken = advance();
+        String typeName = typeToken.tokenValue();
 
-        if (
-                currentToken.type() == TokenType.INT_TYPE ||
-                currentToken.type() == TokenType.STRING_TYPE ||
-                currentToken.type() == TokenType.BOOLEAN_TYPE
-        ) {
-            parserCounter++;
-            String typeName = currentToken.tokenValue();
+        // identifier and error message handling
+        Token nameToken = consume(TokenType.IDENTIFIER, "Syntax Error: Expected variable name after type.");
+        String varName = nameToken.tokenValue();
 
-            String varName;
-            if  (tokens.get(parserCounter).type() == TokenType.IDENTIFIER) {
-                Token varNameToken = tokens.get(parserCounter++);
-                varName = varNameToken.tokenValue();
-            }else {
-                throw new CompilerException("Syntax error: Expected a variable name after type at line " + currentToken.lineNumber());
-            }
-
-            Expression expression;
-            if (tokens.get(parserCounter).type() == TokenType.ASSIGNMENT) {
-                Token assignmentToken = tokens.get(parserCounter++);
-                expression = expression();
-            }else {
-                expression = null;
-            }
-
-            if (tokens.get(parserCounter).type() == TokenType.SEMICOLON) {
-                parserCounter++;
-            }else {
-                throw new CompilerException("Syntax error: Missing semicolon at the end of expression at " + currentToken.lineNumber());
-            }
-
-            return new VariableDeclarationStatement(typeName, varName, expression, currentToken.lineNumber());
-
-        }else {
-            throw new CompilerException("Syntax error: Unexpected token at " + currentToken.lineNumber());
+        // Check for optional initialisation
+        Expression initialiser = null;
+        if (peekToken().type() == TokenType.ASSIGNMENT) {
+            advance(); // Consume the '='
+            initialiser = expression(); // Parse whatever expression is on the right-hand side
         }
+
+        // semi colon
+        consume(TokenType.SEMICOLON, "Syntax Error: Expected ';' at end of variable declaration.");
+
+        // node
+        return new VariableDeclarationStatement(typeName, varName, initialiser, typeToken.lineNumber());
     }
 
     private void handleIfStatement() {}
