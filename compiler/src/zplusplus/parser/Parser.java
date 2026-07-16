@@ -26,7 +26,7 @@ public class Parser {
         List<Statement> statements = new ArrayList<>();
 
         Lexer lexer = Lexer.getInstance();
-        List<Token> tokens  = lexer.tokenize(input);
+        tokens  = lexer.tokenize(input);
 
         if (tokens.isEmpty()) {
             return null;
@@ -100,7 +100,7 @@ public class Parser {
     private Expression logicalOr() {
         Expression expression = logicalAnd();
 
-        while (tokens.get(parserCounter).type() == TokenType.LOGICAL_AND) {
+        while (tokens.get(parserCounter).type() == TokenType.LOGICAL_OR) {
             Token termOperator = tokens.get(parserCounter++);
             Expression rightExpression = logicalAnd();
 
@@ -181,7 +181,7 @@ public class Parser {
             tokens.get(parserCounter).type() == TokenType.MODULO
         ) {
             Token factorOperator = tokens.get(parserCounter++);
-            Expression rightExpression = primary();
+            Expression rightExpression = unary();
 
             expression = new BinaryExpression(expression, factorOperator, rightExpression, expression.getLineNumber());
         }
@@ -191,8 +191,9 @@ public class Parser {
 
     // handles unary operators (higher precedence than binary operators)
     private Expression unary() {
+        Expression expression = primary();
 
-        return null;
+        return expression;
     }
 
     // handles literals, identifier and groups surrounded by parentheses
