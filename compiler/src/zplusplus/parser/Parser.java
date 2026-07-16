@@ -269,6 +269,18 @@ public class Parser {
         }
     }
 
+    /**
+     * Consumes the current token and advances pointer (helper method)
+     * @return consumed token
+     */
+    private Token advance() {
+        if (parserCounter < tokens.size()) {
+            parserCounter++;
+        }
+        // Return the token we just stepped over
+        return tokens.get(parserCounter - 1);
+    }
+
     private void handleFuncDeclaration() {}
 
     private Statement handleVarDeclaration() {
