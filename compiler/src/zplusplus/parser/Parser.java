@@ -34,28 +34,8 @@ public class Parser {
         }
 
         while (!isAtEnd()) {
-            if (isDeclaration()) {
-                if (tokens.get(parserCounter).type() == TokenType.DEF) {
-                    handleFuncDeclaration();
-                } else {
-                    handleVarDeclaration();
-                }
-            }else if (isStatement()) {
-
-                switch (tokens.get(parserCounter).type()) {
-                    case IF -> handleIfStatement();
-                    case WHILE -> handleWhileStatement();
-                    case FOR -> handleForStatement();
-                    case RETURN -> handleReturnStatement();
-                    case BREAK -> handleBreakStatement();
-                    case PRINT -> handlePrintStatement();
-                    case LEFT_BRACE -> handleLeftBraceStatement();
-                    default -> handleOtherStatements();
-                }
-
-            } else {
-                handleOtherStatements();
-            }
+            Statement statement = parseStatement();
+            statements.add(statement);
         }
 
         return statements;
@@ -84,6 +64,34 @@ public class Parser {
                 TokenType.BREAK, TokenType.PRINT, TokenType.LEFT_BRACE
         );
         return match(tokenTypes);
+    }
+
+    private Statement parseStatement() {
+        Statement statement;
+        if (isDeclaration()) {
+            if (tokens.get(parserCounter).type() == TokenType.DEF) {
+                statement = handleFuncDeclaration();
+            } else {
+                statement = handleVarDeclaration();
+            }
+        }else if (isStatement()) {
+
+            switch (tokens.get(parserCounter).type()) {
+                case IF -> statement = handleIfStatement();
+                case WHILE -> statement = handleWhileStatement();
+                case FOR -> statement = handleForStatement();
+                case RETURN -> statement = handleReturnStatement();
+                case BREAK -> statement = handleBreakStatement();
+                case PRINT -> statement = handlePrintStatement();
+                case LEFT_BRACE -> statement = handleLeftBraceStatement();
+                default -> statement = handleOtherStatements();
+            }
+
+        } else {
+            statement = handleOtherStatements();
+        }
+
+        return statement;
     }
 
     /*
@@ -300,7 +308,7 @@ public class Parser {
         throw new CompilerException(errorMessage);
     }
 
-    private void handleFuncDeclaration() {}
+    private Statement handleFuncDeclaration() {return null;}
 
     private Statement handleVarDeclaration() {
         // type token
@@ -325,19 +333,37 @@ public class Parser {
         return new VariableDeclarationStatement(typeName, varName, initialiser, typeToken.lineNumber());
     }
 
-    private void handleIfStatement() {}
+    private Statement handleIfStatement() {
+        Token ifToken = advance();
+        consume(TokenType.LEFT_PAREN, "Syntax Error: Missing '(' at start of if statement.");
 
-    private void handleWhileStatement() {}
+        // parses the expression
+        Expression condition = expression();
+        consume(TokenType.RIGHT_PAREN, "Syntax Error: Expected ')' at end of if statement.");
 
-    private void handleForStatement() {}
+        Statement ifStatements = parseStatement();
 
-    private void handleReturnStatement() {}
+        Statement elseStatements = null;
+        if (peekToken().type() == TokenType.ELSE) {
+            Token elseToken = advance();
 
-    private void handleBreakStatement() {}
+            elseStatements = parseStatement();
+        }
 
-    private void handlePrintStatement() {}
+        return new IfStatement(condition, ifStatements, elseStatements,  ifToken.lineNumber());
+    }
 
-    private void handleLeftBraceStatement() {}
+    private Statement handleWhileStatement() { return null; }
+
+    private Statement handleForStatement() { return null; }
+
+    private Statement handleReturnStatement() { return null; }
+
+    private Statement handleBreakStatement() {return null; }
+
+    private Statement handlePrintStatement() {return null; }
+
+    private Statement handleLeftBraceStatement() {return null;}
 
     private Statement handleOtherStatements() {
         // Check for assignment
