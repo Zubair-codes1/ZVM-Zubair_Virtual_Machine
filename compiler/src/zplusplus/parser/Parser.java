@@ -370,7 +370,43 @@ public class Parser {
     }
 
     private Statement handleForStatement() {
-        return null;
+        Token forToken = advance();
+        consume(TokenType.LEFT_PAREN, "Syntax Error: Missing '(' at start of for statement condition.");
+
+        Token token = peekToken();
+        Statement initialiser;
+        if  (token.type() == TokenType.IDENTIFIER) {
+            initialiser = handleOtherStatements();
+        }else if (isDeclaration()) {
+            initialiser = handleVarDeclaration();
+        }else if (token.type() == TokenType.SEMICOLON) {
+            initialiser = null;
+        }else {
+            throw new CompilerException("Syntax Error: Invalid initialiser for the for statement.");
+        }
+
+        Expression condition;
+        if (initialiser != null) {
+            condition = expression();
+            consume(TokenType.SEMICOLON, "Syntax Error: Expected ';' at end of for condition.");
+        }else {
+            condition = null;
+        }
+
+        Statement incrementStatement;
+        if (peekToken().type() != TokenType.RIGHT_PAREN) {
+            Expression increment = expression();
+            incrementStatement = new ExpressionStatement(increment, increment.getLineNumber());
+        }else {
+            incrementStatement = null;
+        }
+
+        consume(TokenType.RIGHT_PAREN, "Syntax Error: Expected ')' at end of for increment statement.");
+
+        Statement forBlockStatements = parseStatement();
+
+        return new ForStatement(initialiser, condition,  incrementStatement, forBlockStatements, forToken.lineNumber());
+
     }
 
     private Statement handleReturnStatement() { return null; }
