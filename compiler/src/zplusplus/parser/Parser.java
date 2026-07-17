@@ -353,9 +353,25 @@ public class Parser {
         return new IfStatement(condition, ifStatements, elseStatements,  ifToken.lineNumber());
     }
 
-    private Statement handleWhileStatement() { return null; }
+    /**
+     * Handler for while statements
+     * @return while statement
+     */
+    private Statement handleWhileStatement() {
+        Token whileToken = advance();
+        consume(TokenType.LEFT_PAREN, "Syntax Error: Missing '(' at start of while statement condition.");
 
-    private Statement handleForStatement() { return null; }
+        Expression condition = expression();
+        consume(TokenType.RIGHT_PAREN, "Syntax Error: Expected ')' at end of while statement condition.");
+
+        Statement whileStatements = parseStatement();
+
+        return new WhileStatement(condition, whileStatements, whileToken.lineNumber());
+    }
+
+    private Statement handleForStatement() {
+        return null;
+    }
 
     private Statement handleReturnStatement() { return null; }
 
