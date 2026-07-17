@@ -334,7 +334,7 @@ public class Parser {
     }
 
     private Statement handleIfStatement() {
-        Token ifToken = advance();
+        Token ifToken = peekToken();
         consume(TokenType.LEFT_PAREN, "Syntax Error: Missing '(' at start of if statement.");
 
         // parses the expression
@@ -373,32 +373,25 @@ public class Parser {
         Token forToken = advance();
         consume(TokenType.LEFT_PAREN, "Syntax Error: Missing '(' at start of for statement condition.");
 
-        Token token = peekToken();
-        Statement initialiser;
-        if  (token.type() == TokenType.IDENTIFIER) {
-            initialiser = handleOtherStatements();
-        }else if (isDeclaration()) {
+        Statement initialiser = null;
+        if (peekToken().type() == TokenType.SEMICOLON) {
+            advance();
+        } else if (isDeclaration()) {
             initialiser = handleVarDeclaration();
-        }else if (token.type() == TokenType.SEMICOLON) {
-            initialiser = null;
-        }else {
-            throw new CompilerException("Syntax Error: Invalid initialiser for the for statement.");
+        } else {
+            initialiser = handleOtherStatements();
         }
 
-        Expression condition;
-        if (initialiser != null) {
+        Expression condition = null;
+        if (peekToken().type() != TokenType.SEMICOLON) {
             condition = expression();
-            consume(TokenType.SEMICOLON, "Syntax Error: Expected ';' at end of for condition.");
-        }else {
-            condition = null;
         }
+        consume(TokenType.SEMICOLON, "Syntax Error: Expected ';' at end of for statement condition.");
 
-        Statement incrementStatement;
+        Statement incrementStatement = null;
         if (peekToken().type() != TokenType.RIGHT_PAREN) {
             Expression increment = expression();
             incrementStatement = new ExpressionStatement(increment, increment.getLineNumber());
-        }else {
-            incrementStatement = null;
         }
 
         consume(TokenType.RIGHT_PAREN, "Syntax Error: Expected ')' at end of for increment statement.");
