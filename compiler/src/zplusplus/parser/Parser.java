@@ -363,7 +363,23 @@ public class Parser {
 
     private Statement handlePrintStatement() {return null; }
 
-    private Statement handleLeftBraceStatement() {return null;}
+    /**
+     * Handles everything between braces pair { ... }
+     * @return a block statement which contains all the statements within the block
+     */
+    private Statement handleLeftBraceStatement() {
+        Token leftBraceToken = advance();
+        List<Statement> blockStatements = new ArrayList<>();
+
+        while (peekToken().type() != TokenType.RIGHT_BRACE && !isAtEnd()) {
+            Statement statement = parseStatement();
+            blockStatements.add(statement);
+        }
+
+        Token rightBraceToken = consume(TokenType.RIGHT_BRACE, "Syntax Error: Missing '}' at end of block statement.");
+
+        return new BlockStatement(blockStatements, rightBraceToken.lineNumber());
+    }
 
     private Statement handleOtherStatements() {
         // Check for assignment
