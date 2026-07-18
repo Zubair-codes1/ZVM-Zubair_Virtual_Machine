@@ -414,7 +414,10 @@ public class Parser {
         return new ReturnStatement(returnValue, returnToken.lineNumber());
     }
 
-    private Statement handleBreakStatement() {return null; }
+    private Statement handleBreakStatement() {
+        Token breakToken = advance();
+        return new BreakStatement(breakToken.lineNumber());
+    }
 
     private Statement handlePrintStatement() {return null; }
 
