@@ -1,6 +1,5 @@
 package zplusplus.ast;
 
-import java.lang.reflect.Parameter;
 import java.util.List;
 
 /**
@@ -14,9 +13,9 @@ public class FunctionDeclarationStatement extends Statement {
     public final String returnType;
     public final String name;
     public final List<Parameter> parameters;
-    public final List<Statement> body;
+    public final BlockStatement body;
 
-    public FunctionDeclarationStatement(String returnType, String name, List<Parameter> parameters, List<Statement> body, int lineNumber) {
+    public FunctionDeclarationStatement(String returnType, String name, List<Parameter> parameters, BlockStatement body, int lineNumber) {
         super(lineNumber);
 
         this.name = name;
@@ -37,12 +36,12 @@ public class FunctionDeclarationStatement extends Statement {
         return parameters;
     }
 
-    public List<Statement> getBody() {
+    public BlockStatement getBody() {
         return body;
     }
 
     @Override
     public String toString() {
-        return returnType + " " + name + " (" + parameters.toString() + ") {\n" + body.toString() + "\n}";
+        return "def " + returnType + " " + name + " (" + parameters.toString() + ") {\n" + body.toString() + "\n}";
     }
 }
