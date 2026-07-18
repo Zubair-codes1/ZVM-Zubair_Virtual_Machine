@@ -43,7 +43,7 @@ public class Parser {
 
     private boolean isAtEnd() {
         if (parserCounter >= tokens.size()) { return true; }
-        return tokens.get(parserCounter).type() == TokenType.EOF;
+        return peekToken().type() == TokenType.EOF;
     }
 
     private boolean match(List<TokenType> tokenTypes) {
@@ -69,14 +69,13 @@ public class Parser {
     private Statement parseStatement() {
         Statement statement;
         if (isDeclaration()) {
-            if (tokens.get(parserCounter).type() == TokenType.DEF) {
+            if (peekToken().type() == TokenType.DEF) {
                 statement = handleFuncDeclaration();
             } else {
                 statement = handleVarDeclaration();
             }
         }else if (isStatement()) {
-
-            switch (tokens.get(parserCounter).type()) {
+            switch (peekToken().type()) {
                 case IF -> statement = handleIfStatement();
                 case WHILE -> statement = handleWhileStatement();
                 case FOR -> statement = handleForStatement();
@@ -109,8 +108,8 @@ public class Parser {
     private Expression logicalOr() {
         Expression expression = logicalAnd();
 
-        while (tokens.get(parserCounter).type() == TokenType.LOGICAL_OR) {
-            Token termOperator = tokens.get(parserCounter++);
+        while (peekToken().type() == TokenType.LOGICAL_OR) {
+            Token termOperator = advance();
             Expression rightExpression = logicalAnd();
 
             expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
@@ -123,8 +122,8 @@ public class Parser {
     private Expression logicalAnd() {
         Expression expression = equality();
 
-        while (tokens.get(parserCounter).type() == TokenType.LOGICAL_AND) {
-            Token termOperator = tokens.get(parserCounter++);
+        while (peekToken().type() == TokenType.LOGICAL_AND) {
+            Token termOperator = advance();
             Expression rightExpression = equality();
 
             expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
@@ -137,8 +136,8 @@ public class Parser {
     private Expression equality() {
         Expression expression = comparison();
 
-        while (tokens.get(parserCounter).type() == TokenType.EQUAL_EQUAL || tokens.get(parserCounter).type() == TokenType.NOT_EQUAL) {
-            Token termOperator = tokens.get(parserCounter++);
+        while (peekToken().type() == TokenType.EQUAL_EQUAL || peekToken().type() == TokenType.NOT_EQUAL) {
+            Token termOperator = advance();
             Expression rightExpression = comparison();
 
             expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
@@ -152,12 +151,12 @@ public class Parser {
         Expression expression = termOperate();
 
         while (
-                tokens.get(parserCounter).type() == TokenType.GREATER_THAN ||
-                tokens.get(parserCounter).type() == TokenType.GREATER_OR_EQUAL ||
-                tokens.get(parserCounter).type() == TokenType.LESS_THAN ||
-                tokens.get(parserCounter).type() == TokenType.LESS_OR_EQUAL
+                peekToken().type() == TokenType.GREATER_THAN ||
+                peekToken().type() == TokenType.GREATER_OR_EQUAL ||
+                peekToken().type() == TokenType.LESS_THAN ||
+                peekToken().type() == TokenType.LESS_OR_EQUAL
         ) {
-            Token termOperator = tokens.get(parserCounter++);
+            Token termOperator = advance();
             Expression rightExpression = termOperate();
 
             expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
@@ -170,8 +169,8 @@ public class Parser {
     private Expression termOperate() {
         Expression expression = factorOperate();
 
-        while (tokens.get(parserCounter).type() == TokenType.PLUS || tokens.get(parserCounter).type() == TokenType.MINUS) {
-            Token termOperator = tokens.get(parserCounter++);
+        while (peekToken().type() == TokenType.PLUS || peekToken().type() == TokenType.MINUS) {
+            Token termOperator = advance();
             Expression rightExpression = factorOperate();
 
             expression = new BinaryExpression(expression, termOperator, rightExpression, expression.getLineNumber());
@@ -185,11 +184,11 @@ public class Parser {
         Expression expression;
         expression = unary();
 
-        while (tokens.get(parserCounter).type() == TokenType.MULTIPLY ||
-            tokens.get(parserCounter).type() == TokenType.DIVIDE ||
-            tokens.get(parserCounter).type() == TokenType.MODULO
+        while (peekToken().type() == TokenType.MULTIPLY ||
+            peekToken().type() == TokenType.DIVIDE ||
+            peekToken().type() == TokenType.MODULO
         ) {
-            Token factorOperator = tokens.get(parserCounter++);
+            Token factorOperator = advance();
             Expression rightExpression = unary();
 
             expression = new BinaryExpression(expression, factorOperator, rightExpression, expression.getLineNumber());
@@ -200,8 +199,8 @@ public class Parser {
 
     // handles unary operators (higher precedence than binary operators)
     private Expression unary() {
-        if (tokens.get(parserCounter).type() == TokenType.LOGICAL_NOT || tokens.get(parserCounter).type() == TokenType.MINUS) {
-            Token operator = tokens.get(parserCounter++);
+        if (peekToken().type() == TokenType.LOGICAL_NOT || peekToken().type() == TokenType.MINUS) {
+            Token operator = advance();
             Expression right = unary();
             return new UnaryExpression(operator, right, operator.lineNumber());
         }
@@ -211,17 +210,17 @@ public class Parser {
 
     // handles literals, identifier and groups surrounded by parentheses
     private Expression primary() {
-        Token token = tokens.get(parserCounter);
+        Token token = peekToken();
 
         // handle int and string literals
         if (token.type() == TokenType.INT || token.type() == TokenType.STRING) {
-            parserCounter++;
+            advance();
             return new LiteralExpression(token.tokenValue(), token.lineNumber());
         }
 
         // handle booleans
         if (token.type() == TokenType.TRUE ||  token.type() == TokenType.FALSE) {
-            parserCounter++;
+            advance();
             boolean value = token.type() == TokenType.TRUE;
             return new LiteralExpression(value, token.lineNumber());
         }
@@ -229,7 +228,7 @@ public class Parser {
         // handle variables
         if (token.type() == TokenType.IDENTIFIER) {
             if (peekNextToken().type() != TokenType.LEFT_PAREN) {
-                parserCounter++;
+                advance();
                 return new VariableExpression(token.tokenValue(), token.lineNumber());
             }
 
@@ -238,18 +237,14 @@ public class Parser {
 
         // grouping logic
         if (token.type() == TokenType.LEFT_PAREN) {
-            parserCounter++;
+            advance();
 
             // loop back and repeat the process for inner expression
             Expression expression = expression();
 
-            if (tokens.get(parserCounter).type() == TokenType.RIGHT_PAREN) {
-                parserCounter++;
-                return expression; // inner expression
-            } else {
-                throw new CompilerException("Syntax error: Missing \")\" at the end of expression.");
-            }
+            consume(TokenType.RIGHT_PAREN, "Syntax error: Missing \")\" at the end of expression.");
 
+            return expression;
         }
 
         throw new CompilerException("Syntax error: Unexpected token '" + token.tokenValue() + "' at line " +  token.lineNumber());
@@ -476,8 +471,19 @@ public class Parser {
 
         Statement incrementStatement = null;
         if (peekToken().type() != TokenType.RIGHT_PAREN) {
-            Expression increment = expression();
-            incrementStatement = new ExpressionStatement(increment, increment.getLineNumber());
+            // Check if the increment is an inline assignment (e.g., i = i + 1)
+            if (peekToken().type() == TokenType.IDENTIFIER && peekNextToken().type() == TokenType.ASSIGNMENT) {
+                Token nameToken = advance();
+                String name = nameToken.tokenValue();
+                advance(); // Consume '='
+
+                Expression value = expression();
+                incrementStatement = new AssignmentStatement(name, value, nameToken.lineNumber());
+            } else {
+                // Otherwise, fallback to standard expressions (like function calls: tick())
+                Expression increment = expression();
+                incrementStatement = new ExpressionStatement(increment, increment.getLineNumber());
+            }
         }
 
         consume(TokenType.RIGHT_PAREN, "Syntax Error: Expected ')' at end of for increment statement.");
