@@ -428,6 +428,7 @@ public class Parser {
         consume(TokenType.LEFT_PAREN, "Syntax Error: Missing '(' at start of print statement.");
         Expression expression = expression();
         consume(TokenType.RIGHT_PAREN, "Syntax Error: Expected ')' at end of print statement.");
+        consume(TokenType.SEMICOLON, "Syntax Error: Expected ';' at end of print statement.");
 
         return new PrintStatement(expression, printToken.lineNumber());
     }
