@@ -402,7 +402,17 @@ public class Parser {
 
     }
 
-    private Statement handleReturnStatement() { return null; }
+    private Statement handleReturnStatement() {
+        Token returnToken = advance();
+
+        Expression returnValue = null;
+        if (peekToken().type() != TokenType.SEMICOLON) {
+            returnValue = expression();
+        }
+        consume(TokenType.SEMICOLON, "Syntax Error: Expected ';' at end of return statement.");
+
+        return new ReturnStatement(returnValue, returnToken.lineNumber());
+    }
 
     private Statement handleBreakStatement() {return null; }
 
