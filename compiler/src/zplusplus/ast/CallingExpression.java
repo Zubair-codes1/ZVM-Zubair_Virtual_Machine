@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class CallingExpression extends Expression {
 
-    public Expression callee;
+    public String callee;
     public List<Expression> arguments;
 
     /**
@@ -18,14 +18,14 @@ public class CallingExpression extends Expression {
      * @param arguments list of arguments
      * @param lineNumber line number of function call
      */
-    public CallingExpression(Expression callee, List<Expression> arguments, int lineNumber) {
+    public CallingExpression(String callee, List<Expression> arguments, int lineNumber) {
         super(lineNumber);
 
         this.callee = callee;
         this.arguments = arguments;
     }
 
-    public Expression getCallee() {
+    public String getCallee() {
         return callee;
     }
 
@@ -36,7 +36,7 @@ public class CallingExpression extends Expression {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(callee.toString());
+        sb.append(callee);
         sb.append(".(");
         for (int i = 0; i < arguments.size(); i++) {
             sb.append(arguments.get(i).toString());
