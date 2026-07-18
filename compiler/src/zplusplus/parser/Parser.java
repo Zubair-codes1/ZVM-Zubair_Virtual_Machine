@@ -356,7 +356,7 @@ public class Parser {
         List<Parameter> parameters = new ArrayList<>();
 
         while (peekToken().type() != TokenType.RIGHT_PAREN) {
-            Token paramReturnType = null;
+            Token paramReturnType;
             if (isDeclaration() && peekToken().type() != TokenType.DEF) {
                 paramReturnType = advance();
             } else {
