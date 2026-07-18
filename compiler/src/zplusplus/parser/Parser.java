@@ -416,10 +416,21 @@ public class Parser {
 
     private Statement handleBreakStatement() {
         Token breakToken = advance();
+
+        consume(TokenType.SEMICOLON, "Syntax Error: Expected ';' at end of break statement.");
+
         return new BreakStatement(breakToken.lineNumber());
     }
 
-    private Statement handlePrintStatement() {return null; }
+    private Statement handlePrintStatement() {
+        Token printToken = advance();
+
+        consume(TokenType.LEFT_PAREN, "Syntax Error: Missing '(' at start of print statement.");
+        Expression expression = expression();
+        consume(TokenType.RIGHT_PAREN, "Syntax Error: Expected ')' at end of print statement.");
+
+        return new PrintStatement(expression, printToken.lineNumber());
+    }
 
     /**
      * Handles everything between braces pair { ... }
