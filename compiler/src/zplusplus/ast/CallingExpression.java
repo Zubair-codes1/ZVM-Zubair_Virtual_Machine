@@ -12,6 +12,12 @@ public class CallingExpression extends Expression {
     public Expression callee;
     public List<Expression> arguments;
 
+    /**
+     * Constructor for function call AST node
+     * @param callee function name
+     * @param arguments list of arguments
+     * @param lineNumber line number of function call
+     */
     public CallingExpression(Expression callee, List<Expression> arguments, int lineNumber) {
         super(lineNumber);
 
