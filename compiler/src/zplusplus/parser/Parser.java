@@ -30,7 +30,7 @@ public class Parser {
         tokens  = lexer.tokenize(input);
 
         if (tokens.isEmpty()) {
-            return null;
+            return statements;
         }
 
         while (!isAtEnd()) {
@@ -48,7 +48,7 @@ public class Parser {
 
     private boolean match(List<TokenType> tokenTypes) {
         for (TokenType tokenType : tokenTypes) {
-            if (tokens.get(parserCounter).type() == tokenType) { return true; }
+            if (peekToken().type() == tokenType) { return true; }
         }
         return false;
     }
@@ -420,7 +420,7 @@ public class Parser {
     }
 
     private Statement handleIfStatement() {
-        Token ifToken = peekToken();
+        Token ifToken = advance();
         consume(TokenType.LEFT_PAREN, "Syntax Error: Missing '(' at start of if statement.");
 
         // parses the expression
