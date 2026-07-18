@@ -228,9 +228,12 @@ public class Parser {
 
         // handle variables
         if (token.type() == TokenType.IDENTIFIER) {
-            parserCounter++;
+            if (peekNextToken().type() != TokenType.LEFT_PAREN) {
+                parserCounter++;
+                return new VariableExpression(token.tokenValue(), token.lineNumber());
+            }
 
-            return new LiteralExpression(token.tokenValue(), token.lineNumber());
+            return handleFuncCall();
         }
 
         // grouping logic
@@ -250,6 +253,32 @@ public class Parser {
         }
 
         throw new CompilerException("Syntax error: Unexpected token '" + token.tokenValue() + "' at line " +  token.lineNumber());
+    }
+
+    private CallingExpression handleFuncCall() {
+        Token functionName = advance(); // Consumes the identifier
+
+        consume(TokenType.LEFT_PAREN, "Syntax error: Missing '(' at the start of function call.");
+        List<Expression> arguments = new ArrayList<>();
+
+        while (peekToken().type() != TokenType.RIGHT_PAREN && !isAtEnd()) {
+            Expression argument = expression();
+            arguments.add(argument);
+
+            // Handle commas between multiple arguments
+            if (peekToken().type() == TokenType.COMMA) {
+                advance(); // Consume the comma
+                if (peekToken().type() == TokenType.RIGHT_PAREN) {
+                    throw new CompilerException("Syntax Error: Trailing comma in argument list.");
+                }
+            } else if (peekToken().type() != TokenType.RIGHT_PAREN) {
+                throw new CompilerException("Syntax Error: Expected ',' or ')' after argument.");
+            }
+        }
+
+        consume(TokenType.RIGHT_PAREN, "Syntax error: Missing ')' at the end of argument list.");
+
+        return new CallingExpression(functionName.tokenValue(), arguments, functionName.lineNumber());
     }
 
     /*
@@ -340,7 +369,6 @@ public class Parser {
             // Handle commas between multiple parameters
             if (peekToken().type() == TokenType.COMMA) {
                 advance(); // Consume the comma
-                // Optional: throw error if comma is immediately followed by a ')'
                 if (peekToken().type() == TokenType.RIGHT_PAREN) {
                     throw new CompilerException("Syntax Error: Trailing comma in parameter list.");
                 }
