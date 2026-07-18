@@ -13,9 +13,9 @@ public class FunctionDeclarationStatement extends Statement {
     public final String returnType;
     public final String name;
     public final List<Parameter> parameters;
-    public final BlockStatement body;
+    public final Statement body;
 
-    public FunctionDeclarationStatement(String returnType, String name, List<Parameter> parameters, BlockStatement body, int lineNumber) {
+    public FunctionDeclarationStatement(String returnType, String name, List<Parameter> parameters, Statement body, int lineNumber) {
         super(lineNumber);
 
         this.name = name;
@@ -36,7 +36,7 @@ public class FunctionDeclarationStatement extends Statement {
         return parameters;
     }
 
-    public BlockStatement getBody() {
+    public Statement getBody() {
         return body;
     }
 
