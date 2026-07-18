@@ -308,7 +308,65 @@ public class Parser {
         throw new CompilerException(errorMessage);
     }
 
-    private Statement handleFuncDeclaration() {return null;}
+    private Statement handleFuncDeclaration() {
+        Token funcDeclaration = advance(); // Consumes 'def'
+        Token returnType = advance();
+
+        if (
+                returnType.type() != TokenType.INT_TYPE &&
+                        returnType.type() != TokenType.STRING_TYPE &&
+                        returnType.type() != TokenType.BOOLEAN_TYPE
+        ) {
+            throw new CompilerException("Syntax Error: Invalid function return type.");
+        }
+
+        // Enforce that the name must be an identifier
+        Token name = consume(TokenType.IDENTIFIER, "Syntax Error: Missing function name.");
+
+        consume(TokenType.LEFT_PAREN, "Syntax Error: Missing '(' after function name.");
+        List<Parameter> parameters = new ArrayList<>();
+
+        while (peekToken().type() != TokenType.RIGHT_PAREN) {
+            Token paramReturnType = null;
+            if (isDeclaration() && peekToken().type() != TokenType.DEF) {
+                paramReturnType = advance();
+            } else {
+                throw new CompilerException("Syntax Error: Missing parameter type.");
+            }
+
+            Token paramName = consume(TokenType.IDENTIFIER, "Syntax Error: Missing parameter name.");
+            parameters.add(new Parameter(paramReturnType.tokenValue(), paramName.tokenValue()));
+
+            // Handle commas between multiple parameters
+            if (peekToken().type() == TokenType.COMMA) {
+                advance(); // Consume the comma
+                // Optional: throw error if comma is immediately followed by a ')'
+                if (peekToken().type() == TokenType.RIGHT_PAREN) {
+                    throw new CompilerException("Syntax Error: Trailing comma in parameter list.");
+                }
+            } else if (peekToken().type() != TokenType.RIGHT_PAREN) {
+                throw new CompilerException("Syntax Error: Expected ',' or ')' after parameter.");
+            }
+        }
+
+        consume(TokenType.RIGHT_PAREN, "Syntax Error: Missing ')' after parameter list.");
+
+        BlockStatement functionBody;
+        if (peekToken().type() == TokenType.LEFT_BRACE) {
+            functionBody = (BlockStatement) parseStatement();
+        } else {
+            throw new CompilerException("Syntax Error: Missing function body block '{'.");
+        }
+
+        // Note: Assumes FunctionDeclarationStatement has been adjusted to accept BlockStatement
+        return new FunctionDeclarationStatement(
+                returnType.tokenValue(),
+                name.tokenValue(),
+                parameters,
+                functionBody,
+                funcDeclaration.lineNumber()
+        );
+    }
 
     private Statement handleVarDeclaration() {
         // type token
