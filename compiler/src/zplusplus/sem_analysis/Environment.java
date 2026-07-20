@@ -13,6 +13,10 @@ public class Environment {
     private Environment parentEnvironment;
     private Map<String, Symbol> table = new HashMap<>();
 
+    /**
+     * Constructor for Environment/Scope/Symbol table
+     * @param parentEnvironment parent passed in
+     */
     public Environment(Environment parentEnvironment) {
         this.parentEnvironment = parentEnvironment;
     }
