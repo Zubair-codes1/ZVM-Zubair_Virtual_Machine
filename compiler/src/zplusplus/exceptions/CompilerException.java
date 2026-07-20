@@ -15,8 +15,12 @@ public class CompilerException extends RuntimeException {
      */
     public CompilerException(String message, int lineNumber) {
         super(message + " at line " + lineNumber);
+
+        this.message = message;
+        this.lineNumber = lineNumber;
     }
 
+    @Override
     public String getMessage() {
         return message;
     }
