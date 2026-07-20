@@ -1,6 +1,7 @@
 package zplusplus.sem_analysis;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Environment/Scope node class to hold information for each scope level
@@ -10,5 +11,43 @@ import java.util.List;
  */
 public class Environment {
     private Environment parentEnvironment;
-    private List<Symbol> localSymbols;
+    private Map<String, Symbol> table = new HashMap<>();
+
+    public Environment(Environment parentEnvironment) {
+        this.parentEnvironment = parentEnvironment;
+    }
+
+    /**
+     * Adds a symbol to the table along with its name as
+     * an identifier.
+     * @param symbol symbol instance
+     */
+    public void addToTable(Symbol symbol) {
+        table.put(symbol.name(), symbol);
+    }
+
+    /**
+     * Gets a symbol from the symbol table, if not present then
+     * recursively checks parent environments until found. If not then
+     * returns null
+     * @param name name of symbol/varibale/function
+     * @return symbol
+     */
+    public Symbol getSymbol(String name) {
+        if (table.containsKey(name)) {
+            return table.get(name);
+        }else if (parentEnvironment != null) {
+            return parentEnvironment.getSymbol(name);
+        }
+        return null;
+    }
+
+    /**
+     * Getter method for parent environment/scope
+     * @return parent environment
+     */
+    public Environment getParentEnvironment() {
+        return parentEnvironment;
+    }
+
 }
