@@ -8,5 +8,5 @@ package zplusplus.sem_analysis;
  *
  * @author Zubair Abdul Matin
  */
-public record Symbol(String name, String type, boolean isFunc) {
+public record Symbol(String name, String type, boolean isFunc, int mem_offset) {
 }
