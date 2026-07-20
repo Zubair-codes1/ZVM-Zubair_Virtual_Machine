@@ -2,6 +2,7 @@ package zplusplus.sem_analysis;
 
 import java.util.HashMap;
 import java.util.Map;
+import zplusplus.sem_analysis.symbol.Symbol;
 
 /**
  * Environment/Scope node class to hold information for each scope level
@@ -27,7 +28,7 @@ public class Environment {
      * @param symbol symbol instance
      */
     public void addToTable(Symbol symbol) {
-        table.put(symbol.name(), symbol);
+        table.put(symbol.getName(), symbol);
     }
 
     /**
