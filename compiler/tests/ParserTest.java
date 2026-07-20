@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import zplusplus.ast.*;
+import zplusplus.exceptions.SyntaxException;
 import zplusplus.parser.Parser;
-import zplusplus.exceptions.CompilerException;
 
 public class ParserTest {
 
@@ -99,7 +99,7 @@ public class ParserTest {
     public void testSyntaxErrorMissingSemicolonThrowsException() {
         String invalidInput = "int x = 42"; // Missing ';'
 
-        CompilerException exception = assertThrows(CompilerException.class, () -> {
+        SyntaxException exception = assertThrows(SyntaxException.class, () -> {
             parser.parse(invalidInput);
         });
 
@@ -110,7 +110,7 @@ public class ParserTest {
     public void testSyntaxErrorUnbalancedParenthesesThrowsException() {
         String invalidInput = "if (x == 5 { print(x); }"; // Missing ')'
 
-        CompilerException exception = assertThrows(CompilerException.class, () -> {
+        SyntaxException exception = assertThrows(SyntaxException.class, () -> {
             parser.parse(invalidInput);
         });
 
@@ -272,7 +272,7 @@ public class ParserTest {
     public void testSyntaxErrorTrailingCommaInFunctionCall() {
         String input = "compute(1, 2, );"; // Structural invalid trailing comma
 
-        CompilerException exception = assertThrows(CompilerException.class, () -> {
+        SyntaxException exception = assertThrows(SyntaxException.class, () -> {
             parser.parse(input);
         });
         assertTrue(exception.getMessage().contains("Trailing comma in argument list"));
@@ -282,7 +282,7 @@ public class ParserTest {
     public void testSyntaxErrorTrailingCommaInFunctionDeclaration() {
         String input = "def int compute(int a, ) { return a; }";
 
-        CompilerException exception = assertThrows(CompilerException.class, () -> {
+        SyntaxException exception = assertThrows(SyntaxException.class, () -> {
             parser.parse(input);
         });
         assertTrue(exception.getMessage().contains("Trailing comma in parameter list"));
@@ -292,7 +292,7 @@ public class ParserTest {
     public void testSyntaxErrorInvalidFunctionReturnType() {
         String input = "def void test() { return; }"; // 'void' is not a supported token type
 
-        CompilerException exception = assertThrows(CompilerException.class, () -> {
+        SyntaxException exception = assertThrows(SyntaxException.class, () -> {
             parser.parse(input);
         });
         assertTrue(exception.getMessage().contains("Invalid function return type"));
