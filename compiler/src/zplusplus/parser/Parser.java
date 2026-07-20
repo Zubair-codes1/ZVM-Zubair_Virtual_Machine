@@ -247,7 +247,7 @@ public class Parser {
             return expression;
         }
 
-        throw new CompilerException("Syntax error: Unexpected token '" + token.tokenValue() + "' at line " +  token.lineNumber());
+        throw new SyntaxException("Syntax error: Unexpected token '" + token.tokenValue() + "'", token.lineNumber());
     }
 
     private CallingExpression handleFuncCall() {
@@ -264,10 +264,10 @@ public class Parser {
             if (peekToken().type() == TokenType.COMMA) {
                 advance(); // Consume the comma
                 if (peekToken().type() == TokenType.RIGHT_PAREN) {
-                    throw new CompilerException("Syntax Error: Trailing comma in argument list.");
+                    throw new SyntaxException("Syntax Error: Trailing comma in argument list", functionName.lineNumber());
                 }
             } else if (peekToken().type() != TokenType.RIGHT_PAREN) {
-                throw new CompilerException("Syntax Error: Expected ',' or ')' after argument.");
+                throw new SyntaxException("Syntax Error: Expected ',' or ')' after argument", functionName.lineNumber());
             }
         }
 
@@ -329,7 +329,7 @@ public class Parser {
         if (peekToken().type() == type) {
             return advance(); // Safe, valid, and moves us forward!
         }
-        throw new CompilerException(errorMessage);
+        throw new SyntaxException(errorMessage, peekToken().lineNumber());
     }
 
     private Statement handleFuncDeclaration() {
@@ -341,7 +341,7 @@ public class Parser {
                         returnType.type() != TokenType.STRING_TYPE &&
                         returnType.type() != TokenType.BOOLEAN_TYPE
         ) {
-            throw new CompilerException("Syntax Error: Invalid function return type.");
+            throw new SyntaxException("Syntax Error: Invalid function return type", funcDeclaration.lineNumber());
         }
 
         // Enforce that the name must be an identifier
@@ -355,7 +355,7 @@ public class Parser {
             if (isDeclaration() && peekToken().type() != TokenType.DEF) {
                 paramReturnType = advance();
             } else {
-                throw new CompilerException("Syntax Error: Missing parameter type.");
+                throw new SyntaxException("Syntax Error: Missing parameter type", funcDeclaration.lineNumber());
             }
 
             Token paramName = consume(TokenType.IDENTIFIER, "Syntax Error: Missing parameter name.");
@@ -365,10 +365,10 @@ public class Parser {
             if (peekToken().type() == TokenType.COMMA) {
                 advance(); // Consume the comma
                 if (peekToken().type() == TokenType.RIGHT_PAREN) {
-                    throw new CompilerException("Syntax Error: Trailing comma in parameter list.");
+                    throw new SyntaxException("Syntax Error: Trailing comma in parameter list",  funcDeclaration.lineNumber());
                 }
             } else if (peekToken().type() != TokenType.RIGHT_PAREN) {
-                throw new CompilerException("Syntax Error: Expected ',' or ')' after parameter.");
+                throw new SyntaxException("Syntax Error: Expected ',' or ')' after parameter",  funcDeclaration.lineNumber());
             }
         }
 
@@ -378,7 +378,7 @@ public class Parser {
         if (peekToken().type() == TokenType.LEFT_BRACE) {
             functionBody = (BlockStatement) parseStatement();
         } else {
-            throw new CompilerException("Syntax Error: Missing function body block '{'.");
+            throw new SyntaxException("Syntax Error: Missing function body block '{'.", peekToken().lineNumber());
         }
 
         // Note: Assumes FunctionDeclarationStatement has been adjusted to accept BlockStatement
