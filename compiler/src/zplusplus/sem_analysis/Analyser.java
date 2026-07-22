@@ -2,6 +2,7 @@ package zplusplus.sem_analysis;
 
 import zplusplus.ast.*;
 import zplusplus.exceptions.SemanticException;
+import zplusplus.sem_analysis.symbol.Symbol;
 
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class Analyser {
             case FunctionDeclarationStatement functionDeclarationStatement ->
                     analyseFuncDecl(functionDeclarationStatement);
             case PrintStatement printStatement -> analysePrint(printStatement);
-            case ExpressionStatement expressionStatement -> analyseExprStmt(expressionStatement);
+            case ExpressionStatement expressionStatement -> analyseExpression(expressionStatement.getExpression());
             default -> throw new SemanticException("Semantic Error: Not a valid statement", statement.getLineNumber());
         }
     }
@@ -103,7 +104,32 @@ public class Analyser {
         return;
     }
 
-    private void analyseExprStmt(ExpressionStatement expressionStatement) {
-        return;
+    private Type analyseExpression(Expression expression) {
+        if (expression instanceof LiteralExpression literalExpression) {
+            if (literalExpression.getValue() instanceof Integer) {
+                return Type.INT;
+            }else if (literalExpression.getValue() instanceof String) {
+                return Type.STRING;
+            }else if (literalExpression.getValue() instanceof Boolean) {
+                return Type.BOOLEAN;
+            }else {
+                return Type.ERROR;
+            }
+        }else if (expression instanceof VariableExpression variableExpression) {
+            return analyseVarExpression(variableExpression);
+        }else if (expression instanceof BinaryExpression binaryExpression) {
+            return analyseBinExpr(binaryExpression);
+        }
+
+        return Type.ERROR;
+    }
+
+    private Type analyseVarExpression(VariableExpression variableExpression) {
+        Symbol symbol = currentEnvironment.getSymbol(variableExpression.getName());
+        return symbol != null ? symbol.getType() : Type.ERROR;
+    }
+
+    private Type analyseBinExpr(BinaryExpression binaryExpression) {
+        return null;
     }
 }
