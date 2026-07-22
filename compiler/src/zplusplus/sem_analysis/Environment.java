@@ -2,6 +2,8 @@ package zplusplus.sem_analysis;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import zplusplus.exceptions.SemanticException;
 import zplusplus.sem_analysis.symbol.Symbol;
 
 /**
@@ -27,8 +29,12 @@ public class Environment {
      * an identifier.
      * @param symbol symbol instance
      */
-    public void addToTable(Symbol symbol) {
+    public boolean addToTable(Symbol symbol) {
+        if (table.containsKey(symbol.toString())) {
+            return false;
+        }
         table.put(symbol.getName(), symbol);
+        return true;
     }
 
     /**
