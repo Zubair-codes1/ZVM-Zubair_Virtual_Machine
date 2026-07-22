@@ -1,19 +1,21 @@
 package zplusplus.sem_analysis.symbol;
 
+import zplusplus.sem_analysis.Type;
+
 /**
  * Generic Symbol class to hold the name of the
  * symbol (variable/function) along with their type/return type.
  */
 public abstract class Symbol {
     private String name;
-    private String type;
+    private Type type;
 
     /**
      * Constructor for Symbol class
      * @param name name of symbol
      * @param type type of symbol
      */
-    public Symbol(String name, String type) {
+    public Symbol(String name, Type type) {
         this.name = name;
         this.type = type;
     }
@@ -30,7 +32,7 @@ public abstract class Symbol {
      * Gets type
      * @return type
      */
-    public String getType() {
+    public Type getType() {
         return type;
     }
 

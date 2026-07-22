@@ -1,5 +1,7 @@
 package zplusplus.sem_analysis.symbol;
 
+import zplusplus.sem_analysis.Type;
+
 /**
  * Variable symbol class
  *
@@ -12,7 +14,7 @@ public class VariableSymbol extends Symbol {
      * @param name variable name
      * @param type variable type
      */
-    public VariableSymbol(String name, String type) {
+    public VariableSymbol(String name, Type type) {
         super(name, type);
     }
 
@@ -22,6 +24,6 @@ public class VariableSymbol extends Symbol {
      */
     @Override
     public String toString() {
-        return getType() + " " + getName();
+        return getType().toString().toLowerCase() + " " + getName();
     }
 }

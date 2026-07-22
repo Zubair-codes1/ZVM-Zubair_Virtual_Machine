@@ -1,5 +1,7 @@
 package zplusplus.sem_analysis.symbol;
 
+import zplusplus.sem_analysis.Type;
+
 import java.util.List;
 
 /**
@@ -18,7 +20,7 @@ public class FunctionSymbol extends Symbol {
      * @param parameters list of parameters
      * @param stackOffset stack offset (memory stack)
      */
-    public FunctionSymbol(String name, String type, List<VariableSymbol> parameters, int stackOffset) {
+    public FunctionSymbol(String name, Type type, List<VariableSymbol> parameters, int stackOffset) {
         super(name, type);
 
         this.parameters = parameters;
@@ -47,6 +49,6 @@ public class FunctionSymbol extends Symbol {
      */
     @Override
     public String toString() {
-        return "def " + getType() + " " + getName() + "(" + getParameters().toString() + ")";
+        return "def " + getType().toString().toLowerCase() + " " + getName() + "(" + getParameters().toString() + ")";
     }
 }
