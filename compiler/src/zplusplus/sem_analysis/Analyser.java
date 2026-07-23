@@ -102,7 +102,24 @@ public class Analyser {
     }
 
     private void analyseIf(IfStatement ifStatement) {
-        return;
+        Expression condition = ifStatement.getCondition();
+        if (analyseExpression(condition) != Type.BOOLEAN) {
+            throw new SemanticException(
+                    "Semantic Error: Invalid condition, must be a boolean condition",
+                    ifStatement.getLineNumber()
+            );
+        }
+
+        // considers when there is no body expression at all, not an empty body
+        if (ifStatement.getIfStatement() == null) {
+            throw new SemanticException("Semantic Error: Empty if statement", ifStatement.getLineNumber());
+        }
+
+        analyseStatement(ifStatement.getIfStatement());
+
+        if (ifStatement.getElseStatement() != null) {
+            analyseStatement(ifStatement.getElseStatement());
+        }
     }
 
     private void analyseWhile(WhileStatement whileStatement) {
