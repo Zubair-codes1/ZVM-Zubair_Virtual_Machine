@@ -147,7 +147,37 @@ public class Analyser {
     }
 
     private void analyseReturn(ReturnStatement returnStatement) {
-        return;
+
+        if (currentFunctionReturnType == null) {
+            throw new SemanticException(
+                    "Semantic Error: Not a valid function",
+                    returnStatement.getLineNumber()
+            );
+        }
+
+        if (returnStatement.getReturnValue() == null) {
+            if (currentFunctionReturnType != Type.VOID) {
+                throw new SemanticException(
+                        "Semantic Error: Non-void function must return a value of type " + currentFunctionReturnType,
+                        returnStatement.getLineNumber()
+                );
+            }
+            return;
+        }
+
+        if (currentFunctionReturnType == Type.VOID) {
+            throw new SemanticException(
+                    "Semantic Error: Function return type is void but return value is non-void",
+                    returnStatement.getLineNumber()
+            );
+        }
+
+        if (currentFunctionReturnType != analyseExpression(returnStatement.getReturnValue())) {
+            throw new SemanticException(
+                    "Semantic Error: Invalid return type at. Expected: " + currentFunctionReturnType,
+                    returnStatement.getLineNumber()
+            );
+        }
     }
 
     private void analyseBreak(BreakStatement breakStatement) {
