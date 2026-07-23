@@ -119,6 +119,12 @@ public class Analyser {
             return analyseVarExpression(variableExpression);
         }else if (expression instanceof BinaryExpression binaryExpression) {
             return analyseBinExpr(binaryExpression);
+        }else if (expression instanceof UnaryExpression unaryExpression) {
+            return analyseUnaryExpr(unaryExpression);
+        }else if (expression instanceof GroupingExpression groupingExpression) {
+            return analyseGroupExpr(groupingExpression);
+        }else if (expression instanceof CallingExpression callingExpression) {
+            return analyseCallExpr(callingExpression);
         }
 
         return Type.ERROR;
@@ -130,6 +136,18 @@ public class Analyser {
     }
 
     private Type analyseBinExpr(BinaryExpression binaryExpression) {
+        return null;
+    }
+
+    private Type analyseUnaryExpr(UnaryExpression unaryExpression) {
+        return null;
+    }
+
+    private Type analyseCallExpr(CallingExpression callingExpression) {
+        return null;
+    }
+
+    private Type analyseGroupExpr(GroupingExpression groupingExpression) {
         return null;
     }
 }
