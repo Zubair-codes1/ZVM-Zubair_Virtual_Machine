@@ -3,6 +3,7 @@ package zplusplus.sem_analysis;
 import zplusplus.ast.*;
 import zplusplus.exceptions.SemanticException;
 import zplusplus.sem_analysis.symbol.Symbol;
+import zplusplus.sem_analysis.symbol.VariableSymbol;
 
 import java.util.List;
 
@@ -65,7 +66,20 @@ public class Analyser {
     }
 
     private void analyseVarDecl(VariableDeclarationStatement varDeclStatement) {
-        return;
+        if (varDeclStatement.getInitializer() != null) {
+            Type type = null;
+            switch (varDeclStatement.getTypeName()){
+                case "int" -> type = Type.INT;
+                case "bool" -> type = Type.BOOLEAN;
+                case "string" -> type = Type.STRING;
+                default -> throw new SemanticException("Semantic Error: Not a valid type", varDeclStatement.getLineNumber());
+            }
+            VariableSymbol variableSymbol = new VariableSymbol(varDeclStatement.getVarName(), type);
+
+            currentEnvironment.addToTable(variableSymbol);
+        }else {
+            throw new SemanticException("Semantic Error: Not a valid variable", varDeclStatement.getLineNumber());
+        }
     }
 
     private void analyseAssign(AssignmentStatement assignmentStatement) {
