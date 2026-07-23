@@ -151,7 +151,12 @@ public class Analyser {
     }
 
     private void analyseBreak(BreakStatement breakStatement) {
-        return;
+        if (loopDepth <= 1) {
+            throw new SemanticException(
+                    "Semantic Error: Invalid break statement",
+                    breakStatement.getLineNumber()
+            );
+        }
     }
 
     private void analyseBlock(BlockStatement blockStatement) {
