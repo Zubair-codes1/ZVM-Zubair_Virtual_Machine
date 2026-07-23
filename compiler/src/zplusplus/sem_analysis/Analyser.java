@@ -83,7 +83,22 @@ public class Analyser {
     }
 
     private void analyseAssign(AssignmentStatement assignmentStatement) {
-        return;
+        if (assignmentStatement.getExpression() == null) {
+            throw new SemanticException(
+                    "Semantic Error: Not a valid assignment",
+                    assignmentStatement.getLineNumber()
+            );
+        }
+
+        Symbol symbol = currentEnvironment.getSymbol(assignmentStatement.getName());
+        Type expressionType = analyseExpression(assignmentStatement.getExpression());
+
+        if (symbol.getType() != expressionType) {
+            throw new SemanticException(
+                    "Semantic Error: Not a valid assignment",
+                    assignmentStatement.getLineNumber()
+            );
+        }
     }
 
     private void analyseIf(IfStatement ifStatement) {
