@@ -122,7 +122,15 @@ public class Analyser {
     }
 
     private void analyseBlock(BlockStatement blockStatement) {
-        return;
+        // making a new environment and setting it as the current, making the previous one the parent
+        currentEnvironment = new Environment(currentEnvironment);
+
+        for (Statement statement : blockStatement.getStatements()) {
+            analyseStatement(statement);
+        }
+
+        // popping off the old environment
+        currentEnvironment = currentEnvironment.getParentEnvironment();
     }
 
     private void analyseFuncDecl(FunctionDeclarationStatement functionDeclarationStatement) {
