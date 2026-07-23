@@ -105,14 +105,14 @@ public class Analyser {
         Expression condition = ifStatement.getCondition();
         if (analyseExpression(condition) != Type.BOOLEAN) {
             throw new SemanticException(
-                    "Semantic Error: Invalid condition, must be a boolean condition",
+                    "Semantic Error: Invalid if condition, must be a boolean condition",
                     ifStatement.getLineNumber()
             );
         }
 
         // considers when there is no body expression at all, not an empty body
         if (ifStatement.getIfStatement() == null) {
-            throw new SemanticException("Semantic Error: Empty if statement", ifStatement.getLineNumber());
+            throw new SemanticException("Semantic Error: No AST node found for if body", ifStatement.getLineNumber());
         }
 
         analyseStatement(ifStatement.getIfStatement());
@@ -123,7 +123,19 @@ public class Analyser {
     }
 
     private void analyseWhile(WhileStatement whileStatement) {
-        return;
+        Expression condition = whileStatement.getCondition();
+        if  (analyseExpression(condition) != Type.BOOLEAN) {
+            throw new SemanticException(
+                    "Semantic Error: Invalid while condition at",
+                    whileStatement.getLineNumber()
+            );
+        }
+
+        if (whileStatement.getBody() == null) {
+            throw new SemanticException("Semantic Error: No AST node found for while body", whileStatement.getLineNumber());
+        }
+
+        analyseStatement(whileStatement.getBody());
     }
 
     private void analyseFor(ForStatement forStatement) {
